@@ -1,0 +1,3 @@
+[submodule "bristol-stock-exchange"]
+	path = bristol-stock-exchange
+	url = https://github.com/davecliff/BristolStockExchange.git
