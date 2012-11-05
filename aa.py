@@ -52,10 +52,14 @@ class AACommon:
         self.learning_rate_beta2 = 0.5
         self.theta = 0
         self.last_transaction_price = None
-        self.N = 10
         self.previous_trades = RoundRobinBuffer(self.N)
         self.tau = 1
+
+        #this is a magical ass pull by sam
+        self.N = 10
+        #these are magical ass pulls by vytelingum
         self.weight_decay = 0.9
+        self.nyan = 3
 
     def interesting_trades(self):
         return self.previous_trades
@@ -81,15 +85,11 @@ class AACommon:
         lambda_value = self.lambda_value(best_price, trade)
         #we guessed self.previous_doa in this term but fuck it we're probably right
         #because luke and I are genii
-        print self.doa
         delta_t = ((1 + lambda_value) * self.doa) + lambda_value/2
-        print delta_t
         new_doa = self.doa + (self.learning_rate_beta1 * (delta_t - self.doa))
-        print new_doa
         self.doa = new_doa
 
     def decay_old_trades(self):
-        print len(self.previous_trades.buffer)
         for trade in self.previous_trades:
             trade["weight"] *= self.weight_decay
 
@@ -105,11 +105,8 @@ class AACommon:
     def equilibrium_estimator(self):
         interesting_trades = self.previous_trades
         n = sum(x["weight"] for x in interesting_trades)
-        print n
         sx = sum(x["price"]*x["weight"] for x in interesting_trades)
-        print sx
         mean = sx/n
-        print mean
         return mean
 
 class AABuyer(AACommon):
@@ -150,6 +147,22 @@ class AABuyer(AACommon):
 
         return lambda_value
 
+    def bidding_component(self, market_best_ask, market_best_bid, time):
+        if len(self.orders) > 0:
+            order = self.orders[0]
+            assert order.otype == "Bid"
+            if order.price <= market_best_bid:
+                return None
+            elif len(self.previous_trades) == 0:
+                bid = market_best_bid + (min(order.price, market_best_ask) - market_best_bid)/self.nyan
+            elif market_best_ask <= self.tau:
+                bid = market_best_ask
+            else:
+                bid = market_best_bid + (self.tau-market_best_bid)/self.nyan
+
+            return BSE.Order(order.tid, "Bid", bid, order.qty)
+        return None
+
 class AASeller(AACommon):
     PMAX = 6
 
@@ -187,3 +200,19 @@ class AASeller(AACommon):
                 lambda_value = -0.05
 
         return lambda_value
+
+    def bidding_component(self, market_best_ask, market_best_bid, time):
+        if len(self.orders) > 0:
+            order = self.orders[0]
+            assert order.otype == "Ask"
+            if order.price >= market_best_ask:
+                return None
+            elif len(self.previous_trades) == 0:
+                ask = market_best_ask - (market_best_ask - max(order.price, market_best_bid))/self.nyan
+            elif market_best_bid >= self.tau:
+                ask = market_best_bid
+            else:
+                ask = market_best_ask - (market_best_ask - self.tau)/self.nyan
+
+            return BSE.Order(order.tid, "Ask", ask, order.qty)
+        return None
