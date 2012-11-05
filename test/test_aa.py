@@ -55,5 +55,18 @@ class TestAA(unittest.TestCase):
         price = self.aas.aggressiveness_model(0, -1, 3)
         self.assertTrue(price, 4)
 
+    def test_ee(self):
+        self.aas.receive_trade({"price":18})
+        self.assertEqual(self.aas.equilibrium_estimator(), 18)
+
+        self.aas.receive_trade({"price": 18})
+        self.assertTrue(abs(self.aas.equilibrium_estimator()-18) < 0.00001)
+
+
+        aas = aa.AASeller()
+        aas.receive_trade({"price": 19})
+        aas.receive_trade({"price": 0})
+        self.assertTrue(abs(aas.equilibrium_estimator()-9) < 0.00001)
+
 if __name__ == "__main__":
     unittest.main()
