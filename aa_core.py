@@ -258,7 +258,7 @@ class AASeller(AACommon):
             order = self.orders[0]
             assert order.otype == "Ask"
             if order.price >= market_best_ask:
-                ask = order.price
+                return None
             elif len(self.previous_trades) == 0:
                 print "aas case a"
                 ask = market_best_ask
