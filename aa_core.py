@@ -1,5 +1,5 @@
 from __future__ import division
-from bristol_stock_exchange import BSE
+import BSE
 import copy
 
 import math
@@ -47,12 +47,12 @@ class AACommon:
     def __init__(self):
         #-1 is most aggressive
         # 1 is least aggressive
-        self.doa = 0
+        self.doa = -1
         self.learning_rate_beta1 = 0.5
         self.learning_rate_beta2 = 0.5
+        self.orders = []
         self.theta = 0
         self.last_transaction_price = None
-        self.previous_trades = RoundRobinBuffer(self.N)
         self.tau = 1
 
         #this is a magical ass pull by sam
@@ -61,18 +61,20 @@ class AACommon:
         self.weight_decay = 0.9
         self.nyan = 3
 
+        self.previous_trades = RoundRobinBuffer(self.N)
+
     def interesting_trades(self):
         return self.previous_trades
 
-    def update_limit_price(self, limit_price):
-        self.limit_price = limit_price
+    def limit_price(self):
+        return self.orders[0].price
 
     def theta_star(self,alpha):
         alphabar = (alpha - ALPHA_MIN) / (ALPHA_MAX - ALPHA_MIN);
         return (THETA_MAX-THETA_MIN)*(1-alphabar*math.exp(2*(alphabar-1)))+THETA_MIN
 
     def long_term_learning(self,equilibrium_price):
-        interesting_trades = self.interesting_trades()
+        interesting_trades = [x["price"] for x in self.interesting_trades()]
         alpha = (sum([(x-equilibrium_price)**2 for x in interesting_trades])/self.N)**0.5/equilibrium_price
         ts = self.theta_star(alpha)
         self.theta = self.theta + self.learning_rate_beta2*(ts-self.theta)
@@ -86,7 +88,10 @@ class AACommon:
         #we guessed self.previous_doa in this term but fuck it we're probably right
         #because luke and I are genii
         delta_t = ((1 + lambda_value) * self.doa) + lambda_value/2
+        print "aa od",self.doa
         new_doa = self.doa + (self.learning_rate_beta1 * (delta_t - self.doa))
+        print "aa nd", new_doa
+        print "aa dt", delta_t
         self.doa = new_doa
 
     def decay_old_trades(self):
@@ -107,6 +112,7 @@ class AACommon:
         n = sum(x["weight"] for x in interesting_trades)
         sx = sum(x["price"]*x["weight"] for x in interesting_trades)
         mean = sx/n
+        print "aa eq", mean
         return mean
 
 class AABuyer(AACommon):
@@ -114,21 +120,42 @@ class AABuyer(AACommon):
     def __init__(self):
         AACommon.__init__(self)
 
-    def aggressiveness_model(self, theta, doa, equilibrium_price):
-        assert doa >= -1 and doa <= 1
+    def extramarginal(self, equilibrium_price):
+        return self.limit_price() < equilibrium_price
 
-        diff_from_equilibrium = self.limit_price - equilibrium_price
+    def aggressiveness_model(self, theta, doa, equilibrium_price):
+        #if doa > 1:
+        #    doa = 1
+        #elif doa < -1:
+        #    doa = -1
+        assert doa >= -1 and doa <= 1
+        assert not self.extramarginal(equilibrium_price)
+
+        diff_from_equilibrium = self.limit_price() - equilibrium_price
+        print "aa b am dfe",diff_from_equilibrium
 
         if doa >= 0 and doa <= 1:
             return equilibrium_price * (1-doa*math.exp(theta*(doa-1)))
         else:
+            print equilibrium_price
+            print theta
+            print diff_from_equilibrium
             theta_bar = equilibrium_price * math.exp(-theta)
             theta_bar /= diff_from_equilibrium
             theta_bar -= 1
 
+            print doa
+            print theta_bar
             t = diff_from_equilibrium*(1-(doa+1)*math.exp(doa*theta_bar))
             t += equilibrium_price
             return t
+
+    def aggressiveness_model_extra(self, theta, doa):
+        r = self.limit_price()
+        if doa >= 0 and doa <= 1:
+            r *= (1-doa*math.exp(theta*(doa-1)))
+
+        return r
 
     def lambda_value(self, best_bid_price, trade):
         if trade is not None:
@@ -154,35 +181,58 @@ class AABuyer(AACommon):
             if order.price <= market_best_bid:
                 return None
             elif len(self.previous_trades) == 0:
-                bid = market_best_bid + (min(order.price, market_best_ask) - market_best_bid)/self.nyan
+                print "aa there are no trades"
+                print "zero length creating a bid :O"
+                print market_best_ask
+                print order.price
+                print 0
+                expr = min([order.price, market_best_ask,0], key=lambda x: 1000000 if x == None else x)
+                print expr
+                bid = market_best_bid + (expr - market_best_bid)/self.nyan
             elif market_best_ask <= self.tau:
                 bid = market_best_ask
             else:
+                print "aa actually using tau"
                 bid = market_best_bid + (self.tau-market_best_bid)/self.nyan
 
-            return BSE.Order(order.tid, "Bid", bid, order.qty)
+            return BSE.Order(order.tid, "Bid", bid, order.qty, time)
         return None
 
 class AASeller(AACommon):
-    PMAX = 6
+    PMAX = 1000
 
-    def update_limit_price(self, limit_price):
-        self.limit_price = limit_price
+    def extramarginal(self, equilibrium_price):
+                   #150                138.236162362
+        return self.limit_price() >= equilibrium_price
 
-    def aggressiveness_model(self, theta, r, equilibrium_price):
-        assert r >= -1 and r <= 1
+    def aggressiveness_model(self, theta, doa, equilibrium_price):
+        print "doa", doa
+        assert doa >= -1 and doa <= 1
+        assert equilibrium_price > 0
+        assert not self.extramarginal(equilibrium_price)
 
         theta_bar = self.PMAX-equilibrium_price
-        theta_bar /= equilibrium_price - self.limit_price
+        theta_bar /= equilibrium_price - self.limit_price()
+        print "eq", equilibrium_price
+        print "pm", self.PMAX
+        print "lp", self.limit_price()
+        print "tb", theta_bar
         theta_bar = math.log(theta_bar)
         theta_bar -= theta
 
-        if r >= 0 and r <= 1:
-            return equilibrium_price + ((self.PMAX - equilibrium_price)*r*math.exp((r-1)*theta))
+        if doa >= 0 and doa <= 1:
+            return equilibrium_price + ((self.PMAX - equilibrium_price)*doa*math.exp((doa-1)*theta))
         else:
             print "this maths, not the other maths"
 
-            return equilibrium_price + (equilibrium_price-self.limit_price)*r*math.exp((r+1)*theta_bar)
+            return equilibrium_price + (equilibrium_price-self.limit_price())*doa*math.exp((doa+1)*theta_bar)
+
+    def aggressiveness_model_extra(self, theta, doa):
+        r = self.limit_price()
+        if doa >= 0 and doa <= 1:
+            r += (self.PMAX-self.limit_price())*doa*math.exp((doa-1)*theta)
+
+        return r
 
     def lambda_value(self, best_ask_price, trade):
         if trade is not None:
@@ -199,20 +249,27 @@ class AASeller(AACommon):
                 #become more aggressive
                 lambda_value = -0.05
 
-        return lambda_value
+        return -lambda_value
 
     def bidding_component(self, market_best_ask, market_best_bid, time):
+        print "aa bidding component called on seller"
         if len(self.orders) > 0:
+            print "aas have an order!!!!!"
             order = self.orders[0]
             assert order.otype == "Ask"
             if order.price >= market_best_ask:
-                return None
+                ask = order.price
             elif len(self.previous_trades) == 0:
-                ask = market_best_ask - (market_best_ask - max(order.price, market_best_bid))/self.nyan
+                print "aas case a"
+                ask = market_best_ask
+                mop = max([order.price, market_best_bid,1000], key=lambda x: -100000000 if x == None else x)
+                ask -= (market_best_ask - mop)/self.nyan
             elif market_best_bid >= self.tau:
-                ask = market_best_bid
+                print "aas case b"
+                ask = market_best_ask
             else:
+                print "aas case c"
                 ask = market_best_ask - (market_best_ask - self.tau)/self.nyan
 
-            return BSE.Order(order.tid, "Ask", ask, order.qty)
+            return BSE.Order(order.tid, "Ask", ask, order.qty, time)
         return None
