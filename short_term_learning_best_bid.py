@@ -1,20 +1,20 @@
 import aa
 from bristol_stock_exchange import BSE
+
 from matplotlib import pyplot as plt
 
 
 if __name__ == "__main__":
-
+    scale_factor = 100.0
     aab = aa.AABuyer()
     aab.update_limit_price(4)
+    doas = []
+    for i in xrange(0,100):
+        aab.short_term_learning(185, None)
+        doas.append()
 
-    aas = aa.AASeller()
-    aas.update_limit_price(2)
-
-    xs = [x/100.0 for x in xrange(-100,100)]
-    ys = [aab.aggressiveness_model(4, x, 3) for x in xs]
-
-    plt.plot(xs, ys)
+    plt.plot(xrange(0,100), doas)
     plt.show()
+
 
 
