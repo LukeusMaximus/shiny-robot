@@ -63,6 +63,10 @@ class AACommon:
 
         self.previous_trades = RoundRobinBuffer(self.N)
 
+        # DEBUG
+        self.eqp = 1
+        self.strval = ""
+
     def interesting_trades(self):
         return self.previous_trades
 
@@ -120,6 +124,7 @@ class AACommon:
         sx = sum(x["price"]*x["weight"] for x in interesting_trades)
         mean = sx/n
         print "aa eq", mean
+        self.eqp = mean
         return mean
 
 class AABuyer(AACommon):
@@ -139,7 +144,7 @@ class AABuyer(AACommon):
         assert not self.extramarginal(equilibrium_price)
 
         diff_from_equilibrium = self.limit_price() - equilibrium_price
-        print "aa b am dfe", diff_from_equilibrium
+        print "aab am dfe", diff_from_equilibrium
 
         if doa >= 0 and doa <= 1:
             self.tau = equilibrium_price * (1-doa*math.exp(theta*(doa-1)))
@@ -156,7 +161,8 @@ class AABuyer(AACommon):
             t = diff_from_equilibrium*(1-(doa+1)*math.exp(doa*theta_bar))
             t += equilibrium_price
             self.tau = t
-        assert self.tau >= 1 and self.tau <= self.limit_price
+        assert self.tau >= 1 and self.tau <= self.limit_price()
+        self.strval = "aab ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
         print "aab ami tau", self.tau
 
     def aggressiveness_model_extra(self, theta, doa):
@@ -164,7 +170,8 @@ class AABuyer(AACommon):
         if doa >= 0 and doa <= 1:
             r *= (1-doa*math.exp(theta*(doa-1)))
         self.tau = r
-        assert self.tau >= 1 and self.tau <= self.limit_price
+        assert self.tau >= 1 and self.tau <= self.limit_price()
+        self.strval = "aab ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
         print "aab ame tau", self.tau
 
     def lambda_value(self, best_bid_price, trade):
@@ -201,7 +208,6 @@ class AABuyer(AACommon):
             else:
                 print "aab bc case d"
                 bid = market_best_bid + (self.tau-market_best_bid)/self.nyan
-
             return BSE.Order(order.tid, "Bid", bid, order.qty, time)
         return None
 
@@ -232,7 +238,8 @@ class AASeller(AACommon):
         else:
             print "this maths, not the other maths"
             self.tau = equilibrium_price + (equilibrium_price-self.limit_price())*doa*math.exp((doa-1)*theta_bar)
-        print "aas doa", self.doa, "theta", theta, "tb", theta_bar, "tau", self.tau, "lp", self.limit_price()
+        print "aas ami doa", self.doa, "theta", theta, "tb", theta_bar, "tau", self.tau, "lp", self.limit_price()
+        self.strval = "aas ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
         assert self.tau <= self.PMAX and self.tau >= self.limit_price()
 
     def aggressiveness_model_extra(self, theta, doa):
@@ -240,7 +247,8 @@ class AASeller(AACommon):
         if doa >= 0 and doa <= 1:
             r += (self.PMAX-self.limit_price())*doa*math.exp((doa-1)*theta)
         self.tau = r
-        print "aas doa", self.doa, "theta", theta, "tau", self.tau, "lp", self.limit_price()
+        print "aas ame doa", self.doa, "theta", theta, "tau", self.tau, "lp", self.limit_price()
+        self.strval = "aas ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
         assert self.tau <= self.PMAX and self.tau >= self.limit_price()
 
     def lambda_value(self, best_ask_price, trade):
@@ -261,10 +269,12 @@ class AASeller(AACommon):
         return -lambda_value
 
     def bidding_component(self, market_best_ask, market_best_bid, time):
+        print "aas -----------------------------"
         if len(self.orders) > 0:
             order = self.orders[0]
             assert order.otype == "Ask"
-            print "aa op", order.price, "ba", market_best_ask, "bb", market_best_bid, "tau", self.tau
+            print "aas op", order.price, "ba", market_best_ask, "bb", market_best_bid, "tau", self.tau, "eqp", self.eqp, "lim", self.limit_price()
+            print self.strval
             if order.price >= market_best_ask:
                 print "aas bc case a"
                 return None
@@ -279,6 +289,8 @@ class AASeller(AACommon):
             else:
                 print "aas bc case d"
                 ask = market_best_ask - (market_best_ask - self.tau)/self.nyan
-
+                assert ask >= self.limit_price()
             return BSE.Order(order.tid, "Ask", ask, order.qty, time)
         return None
+        
+        

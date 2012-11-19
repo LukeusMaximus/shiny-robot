@@ -105,9 +105,9 @@ class AATrader(BSE.Trader):
             print "aa making a trade"
             if o.price > BSE.bse_sys_maxprice:
                 o.price = BSE.bse_sys_maxprice
-            print "aa s o", o
-            print "aa s lp", self.seller_agent.limit_price()
-            print "aa s da", self.seller_agent.doa
+            print "aas o", o
+            print "aas lp", self.seller_agent.limit_price()
+            print "aas da", self.seller_agent.doa
             assert o.price >= self.seller_agent.limit_price() and o.price <= BSE.bse_sys_maxprice
             assert o.otype == "Ask"
             assert o.qty > 0
