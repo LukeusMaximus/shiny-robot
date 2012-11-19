@@ -34,8 +34,8 @@ class AATrader(BSE.Trader):
         return bbp
 
     def respond(self, time, lob, trade, verbose):
-        print "responding"
-        print "aa BALANCE", self.balance
+        #print "responding"
+        #print "aa BALANCE", self.balance
         if trade is not None:
             self.receive_trade(trade)
             self.buyer_respond(trade, lob)
@@ -71,6 +71,7 @@ class AATrader(BSE.Trader):
                 self.buyer_agent.aggressiveness_model(self.buyer_agent.theta, self.buyer_agent.doa, equilibrium)
             else:
                 self.buyer_agent.aggressiveness_model_extra(self.buyer_agent.theta, self.buyer_agent.doa)
+        print "aab eq", equilibrium, "doa", self.buyer_agent.doa, "theta", self.buyer_agent.theta, "tau", self.buyer_agent.tau
 
     def seller_respond(self, trade, lob):
         equilibrium = self.seller_agent.equilibrium_estimator()
@@ -80,6 +81,7 @@ class AATrader(BSE.Trader):
                 self.seller_agent.aggressiveness_model(self.seller_agent.theta, self.seller_agent.doa, equilibrium)
             else:
                 self.seller_agent.aggressiveness_model_extra(self.seller_agent.theta, self.seller_agent.doa)
+        print "aas eq", equilibrium, "doa", self.buyer_agent.doa, "theta", self.buyer_agent.theta, "tau", self.buyer_agent.tau
 
     def buyer_order(self, best_bid_price, best_ask_price, time):
         o = self.buyer_agent.bidding_component(best_ask_price, best_bid_price, time)
@@ -89,12 +91,12 @@ class AATrader(BSE.Trader):
                 print "aa price", o.price
                 print "aa clamping"
                 o.price = BSE.bse_sys_minprice
-            assert o.price >= BSE.bse_sys_minprice and o.price <= self.buyer_agent.limit_price()
-            assert o.otype == "Bid"
-            assert o.qty > 0
             print "aab b o", o
             print "aab b lp", self.buyer_agent.limit_price()
             print "aab b da", self.buyer_agent.doa
+            assert o.price >= BSE.bse_sys_minprice and o.price <= self.buyer_agent.limit_price()
+            assert o.otype == "Bid"
+            assert o.qty > 0
         return o
 
     def seller_order(self, best_bid_price, best_ask_price, time):
