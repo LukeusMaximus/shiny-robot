@@ -250,14 +250,18 @@ class AASeller(AACommon):
                 print "eq", self.equilibrium_price
                 print "pm", self.PMAX
                 print "lp", self.limit_price()
+                print "tb1", theta_bar
                 theta_bar = math.log(theta_bar)
+                print "tb2", theta_bar
                 theta_bar -= self.theta
-                print "tb", theta_bar
+                print "tb3", theta_bar
 
                 if self.doa >= 0 and self.doa <= 1:
                     self.tau = self.equilibrium_price + ((self.PMAX - self.equilibrium_price)*self.doa*math.exp((self.doa+1)*self.theta))
                 else:
+                    #doa -0.9875
                     print "this maths, not the other maths"
+                    #-77.92           141                         141                      10        -0.9875            -0.9875   -0.2647 
                     self.tau = self.equilibrium_price + (self.equilibrium_price-self.limit_price())*self.doa*math.exp((self.doa-1)*theta_bar)
                 print "aas ami doa", self.doa, "theta", self.theta, "tb", theta_bar, "lp", self.limit_price(), "eqp", self.equilibrium_price, "tau", self.tau
                 self.strval = "aas ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
