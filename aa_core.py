@@ -54,6 +54,8 @@ class AACommon:
         self.theta = 0
         self.last_transaction_price = None
         self.tau = 1
+        self.equilibrium_price = 1
+        self.lambda_val = 0.05
 
         #this is a magical ass pull by sam
         self.N = 10
@@ -64,7 +66,6 @@ class AACommon:
         self.previous_trades = RoundRobinBuffer(self.N)
 
         # DEBUG
-        self.eqp = 1
         self.strval = ""
 
     def interesting_trades(self):
@@ -73,22 +74,31 @@ class AACommon:
     def limit_price(self):
         return self.orders[0].price
 
-    def theta_star(self,alpha):
+    def theta_star(self, alpha):
         alphabar = (alpha - ALPHA_MIN) / (ALPHA_MAX - ALPHA_MIN);
+        print "aa ltl alpha", alpha, "alphabar", alphabar
         return (THETA_MAX-THETA_MIN)*(1-alphabar*math.exp(2*(alphabar-1)))+THETA_MIN
 
-    def long_term_learning(self,equilibrium_price):
+    def long_term_learning(self):
         interesting_trades = [x["price"] for x in self.interesting_trades()]
-        alpha = (sum([(x-equilibrium_price)**2 for x in interesting_trades])/self.N)**0.5/equilibrium_price
+        #if len(interesting_trades) >= self.N:
+        print "aa ltl eqp", self.equilibrium_price
+        print "aa ltl interesting_trades", interesting_trades
+        alpha = (sum([(x-self.equilibrium_price)**2 for x in interesting_trades])/self.N)**0.5/self.equilibrium_price
         ts = self.theta_star(alpha)
+        print "aa ltl old theta", self.theta
         self.theta = self.theta + self.learning_rate_beta2*(ts-self.theta)
+        print "aa ltl new theta", self.theta
 
-    def adaptive_component(self, equilibrium_price, trade, best_bid_price):
-        self.short_term_learning(best_bid_price, trade)
-        self.long_term_learning(equilibrium_price)
+    def adaptive_component(self, trade, best_price):
+        self.lambda_val = self.lambda_value(best_price, trade)
+        self.adaptive_component2()
+        
+    def adaptive_component2(self):
+        self.short_term_learning(self.lambda_val)
+        self.long_term_learning()
 
-    def short_term_learning(self, best_price, trade):
-        lambda_value = self.lambda_value(best_price, trade)
+    def short_term_learning(self, lambda_value):
         #we guessed self.previous_doa in this term but fuck it we're probably right
         #because luke and I are genii
         delta_t = ((1 + lambda_value) * self.doa) + lambda_value/2
@@ -124,55 +134,57 @@ class AACommon:
         sx = sum(x["price"]*x["weight"] for x in interesting_trades)
         mean = sx/n
         print "aa eq", mean
-        self.eqp = mean
-        return mean
+        self.equilibrium_price = mean
 
 class AABuyer(AACommon):
 
     def __init__(self):
         AACommon.__init__(self)
 
-    def extramarginal(self, equilibrium_price):
-        return self.limit_price() < equilibrium_price
+    def extramarginal(self):
+        return self.limit_price() < self.equilibrium_price
 
-    def aggressiveness_model(self, theta, doa, equilibrium_price):
-        #if doa > 1:
-        #    doa = 1
-        #elif doa < -1:
-        #    doa = -1
-        assert doa >= -1 and doa <= 1
-        assert not self.extramarginal(equilibrium_price)
+    def aggressiveness_model(self):
+        if len(self.orders) > 0:
+            if self.extramarginal():
+                r = self.limit_price()
+                if self.doa >= 0 and self.doa <= 1:
+                    r *= (1-self.doa*math.exp(self.theta*(self.doa-1)))
+                self.tau = r
+                assert self.tau >= 1 and self.tau <= self.limit_price()
+                self.strval = "aab ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
+                print "aab ame tau", self.tau
+            else:
+                #if doa > 1:
+                #    doa = 1
+                #elif doa < -1:
+                #    doa = -1
+                assert self.doa >= -1 and self.doa <= 1
+                assert not self.extramarginal()
 
-        diff_from_equilibrium = self.limit_price() - equilibrium_price
-        print "aab am dfe", diff_from_equilibrium
+                diff_from_equilibrium = self.limit_price() - self.equilibrium_price
+                print "aab am dfe", diff_from_equilibrium
 
-        if doa >= 0 and doa <= 1:
-            self.tau = equilibrium_price * (1-doa*math.exp(theta*(doa-1)))
-        else:
-            print equilibrium_price
-            print theta
-            print diff_from_equilibrium
-            theta_bar = equilibrium_price * math.exp(-theta)
-            theta_bar /= diff_from_equilibrium
-            theta_bar -= 1
+                if self.doa >= 0 and self.doa <= 1:
+                    self.tau = self.equilibrium_price * (1-self.doa*math.exp(self.theta*(self.doa-1)))
+                elif diff_from_equilibrium == 0:
+                    self.tau = self.equilibrium_price
+                else:
+                    print self.equilibrium_price
+                    print self.theta
+                    print diff_from_equilibrium
+                    theta_bar = self.equilibrium_price * math.exp(-self.theta)
+                    theta_bar /= diff_from_equilibrium
+                    theta_bar -= 1
 
-            print doa
-            print theta_bar
-            t = diff_from_equilibrium*(1-(doa+1)*math.exp(doa*theta_bar))
-            t += equilibrium_price
-            self.tau = t
-        assert self.tau >= 1 and self.tau <= self.limit_price()
-        self.strval = "aab ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
-        print "aab ami tau", self.tau
-
-    def aggressiveness_model_extra(self, theta, doa):
-        r = self.limit_price()
-        if doa >= 0 and doa <= 1:
-            r *= (1-doa*math.exp(theta*(doa-1)))
-        self.tau = r
-        assert self.tau >= 1 and self.tau <= self.limit_price()
-        self.strval = "aab ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
-        print "aab ame tau", self.tau
+                    print self.doa
+                    print theta_bar
+                    t = diff_from_equilibrium*(1-(self.doa+1)*math.exp(self.doa*theta_bar))
+                    t += self.equilibrium_price
+                    self.tau = t
+                assert self.tau >= 1 and self.tau <= self.limit_price()
+                self.strval = "aab ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
+                print "aab ami tau", self.tau
 
     def lambda_value(self, best_bid_price, trade):
         if trade is not None:
@@ -214,42 +226,42 @@ class AABuyer(AACommon):
 class AASeller(AACommon):
     PMAX = 1000
 
-    def extramarginal(self, equilibrium_price):
-                   #150                138.236162362
-        return self.limit_price() >= equilibrium_price
+    def extramarginal(self):
+        return self.limit_price() >= self.equilibrium_price
 
-    def aggressiveness_model(self, theta, doa, equilibrium_price):
-        print "doa", doa
-        assert doa >= -1 and doa <= 1
-        assert equilibrium_price > 0
-        assert not self.extramarginal(equilibrium_price)
+    def aggressiveness_model(self):
+        if len(self.orders) > 0:
+            if self.extramarginal():
+                r = self.limit_price()
+                if self.doa >= 0 and self.doa <= 1:
+                    r += (self.PMAX-self.limit_price())*self.doa*math.exp((self.doa-1)*self.theta)
+                self.tau = r
+                print "aas ame doa", self.doa, "theta", self.theta, "tau", self.tau, "lp", self.limit_price()
+                self.strval = "aas ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
+                assert self.tau <= self.PMAX and self.tau >= self.limit_price()
+            else:
+                print "doa", self.doa
+                assert self.doa >= -1 and self.doa <= 1
+                assert self.equilibrium_price > 0
+                assert not self.extramarginal()
 
-        theta_bar = self.PMAX-equilibrium_price
-        theta_bar /= equilibrium_price - self.limit_price()
-        print "eq", equilibrium_price
-        print "pm", self.PMAX
-        print "lp", self.limit_price()
-        theta_bar = math.log(theta_bar)
-        theta_bar -= theta
-        print "tb", theta_bar
+                theta_bar = self.PMAX-self.equilibrium_price
+                theta_bar /= self.equilibrium_price - self.limit_price()
+                print "eq", self.equilibrium_price
+                print "pm", self.PMAX
+                print "lp", self.limit_price()
+                theta_bar = math.log(theta_bar)
+                theta_bar -= self.theta
+                print "tb", theta_bar
 
-        if doa >= 0 and doa <= 1:
-            self.tau = equilibrium_price + ((self.PMAX - equilibrium_price)*doa*math.exp((doa+1)*theta))
-        else:
-            print "this maths, not the other maths"
-            self.tau = equilibrium_price + (equilibrium_price-self.limit_price())*doa*math.exp((doa-1)*theta_bar)
-        print "aas ami doa", self.doa, "theta", theta, "tb", theta_bar, "tau", self.tau, "lp", self.limit_price()
-        self.strval = "aas ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
-        assert self.tau <= self.PMAX and self.tau >= self.limit_price()
-
-    def aggressiveness_model_extra(self, theta, doa):
-        r = self.limit_price()
-        if doa >= 0 and doa <= 1:
-            r += (self.PMAX-self.limit_price())*doa*math.exp((doa-1)*theta)
-        self.tau = r
-        print "aas ame doa", self.doa, "theta", theta, "tau", self.tau, "lp", self.limit_price()
-        self.strval = "aas ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
-        assert self.tau <= self.PMAX and self.tau >= self.limit_price()
+                if self.doa >= 0 and self.doa <= 1:
+                    self.tau = self.equilibrium_price + ((self.PMAX - self.equilibrium_price)*self.doa*math.exp((self.doa+1)*self.theta))
+                else:
+                    print "this maths, not the other maths"
+                    self.tau = self.equilibrium_price + (self.equilibrium_price-self.limit_price())*self.doa*math.exp((self.doa-1)*theta_bar)
+                print "aas ami doa", self.doa, "theta", self.theta, "tb", theta_bar, "lp", self.limit_price(), "eqp", self.equilibrium_price, "tau", self.tau
+                self.strval = "aas ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
+                assert self.tau <= self.PMAX and self.tau >= self.limit_price()
 
     def lambda_value(self, best_ask_price, trade):
         if trade is not None:
@@ -273,7 +285,7 @@ class AASeller(AACommon):
         if len(self.orders) > 0:
             order = self.orders[0]
             assert order.otype == "Ask"
-            print "aas op", order.price, "ba", market_best_ask, "bb", market_best_bid, "tau", self.tau, "eqp", self.eqp, "lim", self.limit_price()
+            print "aas op", order.price, "ba", market_best_ask, "bb", market_best_bid, "tau", self.tau, "eqp", self.equilibrium_price, "lim", self.limit_price()
             print self.strval
             if order.price >= market_best_ask:
                 print "aas bc case a"

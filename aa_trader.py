@@ -62,28 +62,20 @@ class AATrader(BSE.Trader):
                     self.buyer_agent.orders = []
                 return r
 
-
     def buyer_respond(self, trade, lob):
-        equilibrium = self.buyer_agent.equilibrium_estimator()
-        self.buyer_agent.adaptive_component(equilibrium, trade, self.best_bid_price(lob))
-        if len(self.buyer_agent.orders) > 0:
-            if not self.buyer_agent.extramarginal(equilibrium):
-                self.buyer_agent.aggressiveness_model(self.buyer_agent.theta, self.buyer_agent.doa, equilibrium)
-            else:
-                self.buyer_agent.aggressiveness_model_extra(self.buyer_agent.theta, self.buyer_agent.doa)
-        print "aab eq", equilibrium, "doa", self.buyer_agent.doa, "theta", self.buyer_agent.theta, "tau", self.buyer_agent.tau
+        self.buyer_agent.equilibrium_estimator()
+        self.buyer_agent.adaptive_component(trade, self.best_bid_price(lob))
+        self.buyer_agent.aggressiveness_model()
 
     def seller_respond(self, trade, lob):
-        equilibrium = self.seller_agent.equilibrium_estimator()
-        self.seller_agent.adaptive_component(equilibrium, trade, self.best_ask_price(lob))
-        if len(self.seller_agent.orders) > 0:
-            if not self.seller_agent.extramarginal(equilibrium):
-                self.seller_agent.aggressiveness_model(self.seller_agent.theta, self.seller_agent.doa, equilibrium)
-            else:
-                self.seller_agent.aggressiveness_model_extra(self.seller_agent.theta, self.seller_agent.doa)
-        print "aas eq", equilibrium, "doa", self.buyer_agent.doa, "theta", self.buyer_agent.theta, "tau", self.buyer_agent.tau
+        self.seller_agent.equilibrium_estimator()
+        self.seller_agent.adaptive_component(trade, self.best_bid_price(lob))
+        self.seller_agent.aggressiveness_model()
 
     def buyer_order(self, best_bid_price, best_ask_price, time):
+        # TODO Aggressiveness model and adaptive component updates here
+        self.buyer_agent.adaptive_component2()
+        self.buyer_agent.aggressiveness_model()
         o = self.buyer_agent.bidding_component(best_ask_price, best_bid_price, time)
         if o is not None:
             print "aa making a trade"
@@ -100,6 +92,9 @@ class AATrader(BSE.Trader):
         return o
 
     def seller_order(self, best_bid_price, best_ask_price, time):
+        # TODO Aggressiveness model and adaptive component updates here
+        self.seller_agent.adaptive_component2()
+        self.seller_agent.aggressiveness_model()
         o = self.seller_agent.bidding_component(best_ask_price, best_bid_price, time)
         if o is not None:
             print "aa making a trade"
