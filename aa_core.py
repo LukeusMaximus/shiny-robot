@@ -246,15 +246,21 @@ class AASeller(AACommon):
                 assert not self.extramarginal()
 
                 theta_bar = self.PMAX-self.equilibrium_price
+                assert theta_bar >= 0
                 theta_bar /= self.equilibrium_price - self.limit_price()
+                assert theta_bar >= 0
                 print "eq", self.equilibrium_price
                 print "pm", self.PMAX
                 print "lp", self.limit_price()
                 print "tb1", theta_bar
                 theta_bar = math.log(theta_bar)
                 print "tb2", theta_bar
+                assert theta_bar >= 0
                 theta_bar -= self.theta
                 print "tb3", theta_bar
+                if theta_bar < 0:
+                    print "tb<0
+                    theta_bar = 0
 
                 if self.doa >= 0 and self.doa <= 1:
                     self.tau = self.equilibrium_price + ((self.PMAX - self.equilibrium_price)*self.doa*math.exp((self.doa+1)*self.theta))
@@ -265,7 +271,8 @@ class AASeller(AACommon):
                     self.tau = self.equilibrium_price + (self.equilibrium_price-self.limit_price())*self.doa*math.exp((self.doa-1)*theta_bar)
                 print "aas ami doa", self.doa, "theta", self.theta, "tb", theta_bar, "lp", self.limit_price(), "eqp", self.equilibrium_price, "tau", self.tau
                 self.strval = "aas ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
-                assert self.tau <= self.PMAX and self.tau >= self.limit_price()
+                assert self.tau <= self.PMAX
+                assert self.tau >= self.limit_price()
 
     def lambda_value(self, best_ask_price, trade):
         if trade is not None:
