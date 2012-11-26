@@ -1,6 +1,6 @@
 import math
 
-class AC:
+class AdaptiveComponent:
     def __init__(self):
         self.GAMMA = 2.0
         self.THETA_MIN = -8.0
