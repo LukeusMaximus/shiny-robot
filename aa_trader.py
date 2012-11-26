@@ -14,8 +14,10 @@ class AATrader(BSE.Trader):
         self.orders=[order]
         print "aa getting an order", order
         if order.otype == "Bid":
+            print "aa getting an bid order"
             self.buyer_agent.orders = [order]
         elif order.otype == "Ask":
+            print "aa getting an ask order", order
             self.seller_agent.orders = [order]
         else:
             assert False
@@ -50,6 +52,7 @@ class AATrader(BSE.Trader):
                                      self.best_ask_price(lob), time)
                 if r is not None:
                     print [r]
+                    print "aa order bid",str(r.price) + "," + str(r.time) + "," + str(self.buyer_agent.equilibrium_price) + "," + str(self.buyer_agent.doa) + "," + str(self.buyer_agent.tau) + "," + str(self.buyer_agent.limit_price())
                     self.buyer_agent.orders = []
                 return r
             else:
@@ -59,7 +62,8 @@ class AATrader(BSE.Trader):
                                      self.best_ask_price(lob), time)
                 if r is not None:
                     print [r]
-                    self.buyer_agent.orders = []
+                    print "aa order ask",str(r.price) + "," + str(r.time) + "," + str(self.seller_agent.equilibrium_price) + "," + str(self.seller_agent.doa) + "," + str(self.seller_agent.tau) + "," + str(self.seller_agent.limit_price())
+                    self.seller_agent.orders = []
                 return r
 
     def buyer_respond(self, trade, lob):
@@ -69,7 +73,7 @@ class AATrader(BSE.Trader):
 
     def seller_respond(self, trade, lob):
         self.seller_agent.equilibrium_estimator()
-        self.seller_agent.adaptive_component(trade, self.best_bid_price(lob))
+        self.seller_agent.adaptive_component(trade, self.best_ask_price(lob))
         self.seller_agent.aggressiveness_model()
 
     def buyer_order(self, best_bid_price, best_ask_price, time):

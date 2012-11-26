@@ -54,7 +54,7 @@ class AACommon:
         self.theta = 0
         self.last_transaction_price = None
         self.tau = 1
-        self.equilibrium_price = 1
+        self.equilibrium_price = 500
         self.lambda_val = 0.05
 
         #this is a magical ass pull by sam
@@ -85,6 +85,12 @@ class AACommon:
         print "aa ltl eqp", self.equilibrium_price
         print "aa ltl interesting_trades", interesting_trades
         alpha = (sum([(x-self.equilibrium_price)**2 for x in interesting_trades])/self.N)**0.5/self.equilibrium_price
+        if alpha > ALPHA_MAX:
+            alpha = ALPHA_MAX
+
+        if alpha < ALPHA_MIN:
+            alpha = ALPHA_MIN
+
         ts = self.theta_star(alpha)
         print "aa ltl old theta", self.theta
         self.theta = self.theta + self.learning_rate_beta2*(ts-self.theta)
@@ -129,11 +135,14 @@ class AACommon:
         self.previous_trades.age_buffer()
 
     def equilibrium_estimator(self):
-        interesting_trades = self.previous_trades
+        print "aa eq estimator called"
+        interesting_trades = [x for x in self.previous_trades]
+        print "aa eq",interesting_trades
         n = sum(x["weight"] for x in interesting_trades)
         sx = sum(x["price"]*x["weight"] for x in interesting_trades)
         mean = sx/n
-        print "aa eq", mean
+        #print "aa eq", mean
+        print "aa eq", self.equilibrium_price
         self.equilibrium_price = mean
 
 class AABuyer(AACommon):
@@ -226,6 +235,9 @@ class AABuyer(AACommon):
 class AASeller(AACommon):
     PMAX = 1000
 
+    def __init__(self):
+        AACommon.__init__(self)
+
     def extramarginal(self):
         return self.limit_price() >= self.equilibrium_price
 
@@ -248,6 +260,7 @@ class AASeller(AACommon):
                 theta_bar = self.PMAX-self.equilibrium_price
                 assert theta_bar >= 0
                 theta_bar /= self.equilibrium_price - self.limit_price()
+                print self.limit_price()
                 assert theta_bar >= 0
                 print "eq", self.equilibrium_price
                 print "pm", self.PMAX
@@ -255,7 +268,6 @@ class AASeller(AACommon):
                 print "tb1", theta_bar
                 theta_bar = math.log(theta_bar)
                 print "tb2", theta_bar
-                assert theta_bar >= 0
                 theta_bar -= self.theta
                 print "tb3", theta_bar
                 if theta_bar < 0:
@@ -294,6 +306,7 @@ class AASeller(AACommon):
     def bidding_component(self, market_best_ask, market_best_bid, time):
         print "aas -----------------------------"
         if len(self.orders) > 0:
+            print "aas limit price", self.limit_price()
             order = self.orders[0]
             assert order.otype == "Ask"
             print "aas op", order.price, "ba", market_best_ask, "bb", market_best_bid, "tau", self.tau, "eqp", self.equilibrium_price, "lim", self.limit_price()
@@ -308,12 +321,10 @@ class AASeller(AACommon):
                 ask -= (market_best_ask - mop)/self.nyan
             elif market_best_bid >= self.tau:
                 print "aas bc case c"
-                ask = market_best_ask
+                ask = market_best_bid
             else:
                 print "aas bc case d"
                 ask = market_best_ask - (market_best_ask - self.tau)/self.nyan
                 assert ask >= self.limit_price()
             return BSE.Order(order.tid, "Ask", ask, order.qty, time)
         return None
-        
-        
