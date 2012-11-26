@@ -2,7 +2,7 @@ class NewtonSolver:
     def __init__(self, precision, steps):
         self.precision = precision
         self.steps = steps
-    def solve(f, f1, start):
+    def solve(self, f, f1, start):
         x = startPoint
         delta = self.precision
         i = 0
