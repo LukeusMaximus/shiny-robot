@@ -33,67 +33,36 @@ class AC:
             a = (alpha - self.alpha_min) / (self.alpha_max - self.alpha_min)
         self.theta = self.theta + self.BETA2 * (((self.THETAMAX - self.THETAMIN) * (1.0 - a) * math.exp(self.GAMMA * (a - 1.0)) + self.THETAMIN) - self.theta)
     
-    def update_short_term(self, shoutStimulus, estimatedPrice, tau):
-
-        change_aggressiveness = False;
-        increase_aggressiveness = False;            
-        if (shoutStimulus.Shout.Accepted)
-        {
-            change_aggressiveness = True;
+    def update_short_term(self, shoutStimulus, e_price, tau, side):
+        desired_target_price = -1
+        #double currentTargetPrice = _aggressivenessModel.ComputeTau(_theta, _aggressiveness, estimatedPrice);
+        change_aggressiveness = False
+        increase_aggressiveness = False          
+        if (shoutStimulus.Shout.Accepted):
+            change_aggressiveness = True
             p_t = shoutStimulus.LastTrade.Price;
-            if (Side == OrderSide.Buy)
-            {
-                if (currentTargetPrice < pT)
-                {
-                    increaseAggressiveness = true;
-                }
-            }
-            else if (Side == OrderSide.Sell)
-            {
-                if (currentTargetPrice > pT)
-                {
-                    increaseAggressiveness = true;
-                }
-                else
-                {
-                }
-            }
-            desiredTargetPrice = pT;
-        }
-        else if (Side == OrderSide.Buy && shoutStimulus.Shout.Side == OrderSide.Buy)
-        {
-            double bid = shoutStimulus.Shout.Price;
-            if (currentTargetPrice <= bid)
-            {
-                changeAggressiveness = true;
-                increaseAggressiveness = true;
-                desiredTargetPrice = bid;
-            }
-            else
-            {
-            }
-        }
-        else if (Side == OrderSide.Sell && shoutStimulus.Shout.Side == OrderSide.Sell)
-        {
-            double ask = shoutStimulus.Shout.Price;
-            if (currentTargetPrice >= ask)
-            {
-                changeAggressiveness = true;
-                increaseAggressiveness = true;
-                desiredTargetPrice = ask;
-            }
-            else
-            {
-            }
-        }
+            if (side == "bid"):
+                if (tau < p_t)
+                    increase_aggressiveness = True
+            elif (side == "ask"):
+                if (tau > pT):
+                    increase_aggressiveness = True
+            desired_target_price = p_t
+        elif (side == "bid" and shoutStimulus.Shout.Side == "bid"):
+            bid = shoutStimulus.Shout.Price
+            if (tau <= bid):
+                change_aggressiveness = True
+                increase_aggressiveness = True
+                desired_target_price = bid
+        elif (side == "ask" && shoutStimulus.Shout.Side == "ask"):
+            ask = shoutStimulus.Shout.Price
+            if (tau >= ask):
+                change_aggressiveness = True
+                increase_aggressiveness = True
+                desired_target_price = ask
+        if change_aggressiveness:
+            update_aggressiveness(increase_aggressiveness, e_price, desired_target_price)
 
-        if (changeAggressiveness)
-        {
-            UpdateAggressiveness(increaseAggressiveness, estimatedPrice, desiredTargetPrice);
-        }
-
-        
-    
     def update_aggressiveness(self, inc_aggressiveness, e_price, desired_tau, r_shout):
         delta = 0
 
