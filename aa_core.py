@@ -259,7 +259,7 @@ class AASeller(AACommon):
                 theta_bar -= self.theta
                 print "tb3", theta_bar
                 if theta_bar < 0:
-                    print "tb<0
+                    print "tb<0"
                     theta_bar = 0
 
                 if self.doa >= 0 and self.doa <= 1:
