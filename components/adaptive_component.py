@@ -18,9 +18,6 @@ class AdaptiveComponent:
         self.alpha_min = 1000000000000000000
         self.alpha_max = -1000000000000000000
         
-    def update_limit_price(self, price):
-        self.limit_price = price
-
     def update_long_term(self, t_price, e_price):
         self.transaction_prices.append(t_price)
         if len(self.transaction_prices) >= self.WS:
