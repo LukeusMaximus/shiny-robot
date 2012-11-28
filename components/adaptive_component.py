@@ -1,7 +1,7 @@
 import math
 
 class AdaptiveComponent:
-    def __init__(self):
+    def __init__(self, agent, side, limit_price, aggressiveness_model):
         self.GAMMA = 2.0
         self.THETA_MIN = -8.0
         self.THETA_MAX = 2.0
@@ -11,12 +11,21 @@ class AdaptiveComponent:
         self.LAMBDA_A = 0.01
         self.WS = 30
 
+        self.side = side
+        self.agent = agent
+        self.aggressiveness_model = aggressiveness_model
+        self.limit_price = limit_price
         self.theta = 0.5
-        self.limit_price = 500
         self.aggressiveness = 0
         self.transaction_prices = []
         self.alpha_min = 1000000000000000000
         self.alpha_max = -1000000000000000000
+
+    def update_limit_price(self, limit_price):
+        self.limit_price = limit_price
+
+    def initialise_aggressiveness(self, aggressiveness):
+        self.aggressiveness = aggressiveness
 
     def update_long_term(self, t_price, e_price):
         self.transaction_prices.append(t_price)
@@ -30,38 +39,76 @@ class AdaptiveComponent:
             a = (alpha - self.alpha_min) / (self.alpha_max - self.alpha_min)
         self.theta = self.theta + self.BETA2 * (((self.THETAMAX - self.THETAMIN) * (1.0 - a) * math.exp(self.GAMMA * (a - 1.0)) + self.THETAMIN) - self.theta)
 
-    def update_short_term(self, shoutStimulus, e_price, tau, side):
+    def update_short_term_from_inactivity(self, e_price):
+        snapshot = self.agent.agent_status.last_snapshot
+        if snapshot == None:
+            return False
+
+        side = None
+        if self.side == "Ask":
+            side = "Bid"
+        else:
+            side = "Ask"
+        if side.Depth == 0:
+            return False
+        best_price = side[0].Price
+
+        if best_price == 0:
+            return False
+
+        desired_price = best_price
+        current_target_price = self.aggressiveness_model.compute_tau(self.theta, self.aggressiveness, e_price)
+        increase_profit_margin = False
+
+        if self.side == "Bid":
+            if desired_price > self.limit_price:
+                desired_price = self.limit_price
+            increase_profit_margin = desired_price < current_target_price
+        else:
+            if desired_price < self.limit_price:
+                desired_price = self.limit_price
+            increase_profit_margin = desired_price > current_target_price
+
+        if increase_profit_margin or self.agent.is_active:
+            self.update_aggressiveness(increase_profit_margin, e_price, desired_price)
+            return True
+
+        return False
+
+    def update_short_term(self, trade, best_price, best_price_side, last_trade_price, e_price):
         desired_target_price = -1
-        #double currentTargetPrice = _aggressivenessModel.ComputeTau(_theta, _aggressiveness, estimatedPrice);
+        current_target_price = self.aggressiveness_model.compute_tau(self.theta, self.aggressiveness, e_price)
         change_aggressiveness = False
-        increase_aggressiveness = False          
-        if (shoutStimulus.Shout.Accepted):
+        increase_aggressiveness = False
+        side = self.side
+        if (trade is not None):
             change_aggressiveness = True
-            p_t = shoutStimulus.LastTrade.Price;
-            if (side == "bid"):
-                if (tau < p_t):
+            p_t = trade["price"]
+            if (side == "Bid"):
+                if (current_target_price < p_t):
                     increase_aggressiveness = True
-            elif (side == "ask"):
-                if (tau > pT):
+            elif (side == "Ask"):
+                if (current_target_price > p_t):
                     increase_aggressiveness = True
             desired_target_price = p_t
-        elif (side == "bid" and shoutStimulus.Shout.Side == "bid"):
-            bid = shoutStimulus.Shout.Price
-            if (tau <= bid):
+        elif (side == "Bid" and best_price_side == "Bid"):
+            bid = best_price
+            if (current_target_price <= bid):
                 change_aggressiveness = True
                 increase_aggressiveness = True
                 desired_target_price = bid
-        elif (side == "ask" and shoutStimulus.Shout.Side == "ask"):
-            ask = shoutStimulus.Shout.Price
-            if (tau >= ask):
+        elif (side == "Ask" and best_price_side == "Ask"):
+            ask = best_price
+            if (current_target_price >= ask):
                 change_aggressiveness = True
                 increase_aggressiveness = True
                 desired_target_price = ask
         if change_aggressiveness:
             self.update_aggressiveness(increase_aggressiveness, e_price, desired_target_price)
 
-    def update_aggressiveness(self, inc_aggressiveness, e_price, desired_tau, r_shout):
+    def update_aggressiveness(self, inc_aggressiveness, e_price, desired_target_price):
         delta = 0
+        r_shout = self.aggressiveness_model.compute_r_shout(self.theta, self.e_price, desired_target_price);
 
         if inc_aggressiveness:
             delta = (1.0 + self.LAMBDA_R) * r_shout + self.LAMBDA_A
