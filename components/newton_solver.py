@@ -1,5 +1,5 @@
 class NewtonSolver:
-    def __init__(self, precision, steps):
+    def __init__(self, precision=1e-6, steps=25):
         self.precision = precision
         self.steps = steps
     def solve(self, f, f1, start):

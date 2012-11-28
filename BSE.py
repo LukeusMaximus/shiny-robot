@@ -42,12 +42,12 @@
 #
 # NB this code has been written to be readable, not efficient!
 
-
+import matplotlib.pyplot as plt
 
 # could import pylab here for graphing etc
 import sys
 import random
-import aa_trader
+import aa_agent
 
 
 bse_sys_minprice = 1    # minimum price in the system, in cents/pennies
@@ -757,7 +757,7 @@ def populate_market(traders_spec, traders, shuffle, verbose):
                 elif robottype == 'ZIP':
                         return Trader_ZIP('ZIP', name, 0.00)
                 elif robottype == 'AA':
-                        return aa_trader.AATrader('AA', name, 0.00)
+                        return aa_agent.AAAgent('AA', name, 0.00)
                 else:
                         sys.exit('FATAL: don\'t know robot type %s\n' % robottype)
 
@@ -974,7 +974,6 @@ def customer_orders(time, last_update, traders, trader_stats, os, pending, verbo
         return new_pending
 
 
-
 # one session in the market
 def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, dumpfile, dump_each_trade):
 
@@ -1020,6 +1019,7 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, dum
                 #get an order (or None) from a randomly chosen trader
                 tid = list(traders.keys())[random.randint(0,len(traders)-1)]
                 order = traders[tid].getorder(time,time_left,exchange.publish_lob(time, lob_verbose))
+                print "dat trader", tid
 
                 if order != None:
                         # send order to exchange
@@ -1075,7 +1075,7 @@ if __name__ == "__main__":
         order_sched = {'sup':supply_schedule, 'dem':demand_schedule,
                        'interval':30, 'timemode':'drip-poisson'}
 
-        buyers_spec = [('ZIC',10),('AA',10)]
+        buyers_spec = [('ZIC',10),('AA',1)]
         sellers_spec = buyers_spec
         traders_spec = {'sellers':sellers_spec, 'buyers':buyers_spec}
 
