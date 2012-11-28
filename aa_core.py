@@ -47,7 +47,7 @@ class AACommon:
     def __init__(self):
         #-1 is most aggressive
         # 1 is least aggressive
-        self.doa = -1
+        self.doa = 0
         self.learning_rate_beta1 = 0.5
         self.learning_rate_beta2 = 0.5
         self.orders = []
@@ -283,8 +283,7 @@ class AASeller(AACommon):
                     self.tau = self.equilibrium_price + (self.equilibrium_price-self.limit_price())*self.doa*math.exp((self.doa-1)*theta_bar)
                 print "aas ami doa", self.doa, "theta", self.theta, "tb", theta_bar, "lp", self.limit_price(), "eqp", self.equilibrium_price, "tau", self.tau
                 self.strval = "aas ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
-                assert self.tau <= self.PMAX
-                assert self.tau >= self.limit_price()
+                assert self.tau <= self.PMAX and self.tau >= self.limit_price()
 
     def lambda_value(self, best_ask_price, trade):
         if trade is not None:
