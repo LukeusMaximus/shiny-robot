@@ -46,7 +46,7 @@ class AAAgent(BSE.Trader):
             maxprice = self.agent_status.current_instrument.maxprice
             self.aggressiveness_model = AggressivenessModel(self, order.price, self.side, maxprice)
             self.adaptive_component   = AdaptiveComponent(self, self.side, order.price, self.aggressiveness_model)
-            self.bidding_component = BiddingComponent(self, self.side, order.price, self.agent_status.current_instrument)
+            self.bidding_component = BiddingComponent(self.side, order.price, self.agent_status.current_instrument)
             self.previous_limit = order.price
         elif (self.previous_limit != order.price):
             self.previous_limit = order.price
@@ -54,7 +54,7 @@ class AAAgent(BSE.Trader):
             adaptive_component.update_limit_price(limit_price);
             bidding_component.update_limit_price(limit_price);
 
-        adjust_from_inactivity()
+        self.adjust_from_inactivity()
 
     def respond(self, time, lob, trade, verbose):
 
@@ -123,7 +123,7 @@ class AAAgent(BSE.Trader):
     def adjust_from_inactivity(self):
         estimated_price = self.equilibrium_estimator.estimated_price
 
-        self.bidding_component.update_best_prices(self.agent_state.best_bid_price(), self.agent_state.best_ask_price())
+        self.bidding_component.update_best_prices(self.agent_status.best_bid_price(), self.agent_status.best_ask_price())
 
         theta = self.adaptive_component.theta
         self.aggressiveness = self.adaptive_component.aggressiveness

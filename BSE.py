@@ -42,7 +42,7 @@
 #
 # NB this code has been written to be readable, not efficient!
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 # could import pylab here for graphing etc
 import sys

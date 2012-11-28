@@ -40,10 +40,6 @@ class AdaptiveComponent:
         self.theta = self.theta + self.BETA2 * (((self.THETAMAX - self.THETAMIN) * (1.0 - a) * math.exp(self.GAMMA * (a - 1.0)) + self.THETAMIN) - self.theta)
 
     def update_short_term_from_inactivity(self, e_price):
-        snapshot = self.agent.agent_status.last_snapshot
-        if snapshot == None:
-            return False
-
         side = None
         if self.side == "Ask":
             side = "Bid"

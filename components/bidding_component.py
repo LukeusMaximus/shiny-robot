@@ -1,7 +1,7 @@
 class BiddingComponent:
     def __init__(self, side, limit_price, instrument):
 
-        self.limit_price = self.limit_price          
+        self.limit_price = limit_price          
         self.first_trading_round = True
         self.current_instrument = instrument
 
