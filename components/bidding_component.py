@@ -14,11 +14,8 @@ class BiddingComponent:
         self.best_ask = 0
 
         self.inner_price = self.inner_price_seller
-        if (side == "bid"):
+        if (side == "Bid"):
             self.inner_price = self.inner_price_buyer
-
-
-    #public bool IsFirstTradingRound { get { return _isFirstTradingRound; } set { _isFirstTradingRound = value; } }
 
     def update_best_prices(self, best_bid, best_ask):
         if (best_bid == 0.0):
@@ -32,9 +29,9 @@ class BiddingComponent:
     def price(self, tau):
         if not self.first_trading_round and tau < 0:
             return tau, False
-        price, success = self.inner_price(tau);
-        ticksInPrice = int(price / self.current_instrument.price_tick);
-        return float(ticksInPrice * self.current_instrument.price_tick), success
+        price, success = self.inner_price(tau)
+        ticks_in_price = int(price / self.current_instrument.price_tick)
+        return float(ticks_in_price * self.current_instrument.price_tick), success          
 
     def inner_price_buyer(self, tau):
         price = 0.0
@@ -49,13 +46,13 @@ class BiddingComponent:
         elif self.limit_price > self.best_bid:
             success = True
             if self.first_trading_round:
-                best_ask_plus = (1.0 + self.LAMBDA_R) * self.bestAsk + self.LAMBDA_A;
-                price = self.best_bid + (min(self.limit_price, best_ask_plus) - self.best_bid) / self.eta;
+                best_ask_plus = (1.0 + self.LAMBDA_R) * self.bestAsk + self.LAMBDA_A
+                price = self.best_bid + (min(self.limit_price, best_ask_plus) - self.best_bid) / self.eta
             else:
                 if self.best_ask <= tau:
                     price = self.best_ask
                 else:
-                    price = self.best_bid + (tau - self.best_bid) / self.eta;
+                    price = self.best_bid + (tau - self.best_bid) / self.eta
         return price, success
 
     def inner_price_seller(self, tau):
