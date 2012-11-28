@@ -1,4 +1,5 @@
 import math
+from newton_solver import NewtonSolver
 
 
 class AggressivenessModel:
