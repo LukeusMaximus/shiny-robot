@@ -14,7 +14,7 @@ class BiddingComponent:
         self.best_ask = 0
 
         self.inner_price = self.inner_price_seller
-        if (side == "bid"):
+        if (side == "Bid"):
             self.inner_price = self.inner_price_buyer
 
 
@@ -22,9 +22,9 @@ class BiddingComponent:
 
     def update_best_prices(self, best_bid, best_ask):
         if (best_bid == 0.0):
-            best_bid = self.current_instrument.MinPrice
+            best_bid = self.current_instrument.min_price
         if (best_ask == 0.0):
-            best_ask = self.current_instrument.MaxPrice
+            best_ask = self.current_instrument.max_price
 
         self.best_bid = best_bid
         self.best_ask = best_ask
@@ -33,8 +33,8 @@ class BiddingComponent:
         if not self.first_trading_round and tau < 0:
             return tau, False      
         price, success = self.inner_price(tau);
-        ticksInPrice = int(price / self.current_instrument.PriceTick);
-        return float(ticksInPrice * self.current_instrument.PriceTick), success          
+        ticks_in_price = int(price / self.current_instrument.price_tick);
+        return float(ticks_in_price * self.current_instrument.price_tick), success          
     
     def inner_price_buyer(self, tau)
         price = 0.0
