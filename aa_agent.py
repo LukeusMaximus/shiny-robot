@@ -102,6 +102,7 @@ class AAAgent(BSE.Trader):
             self.adaptive_component.initalise_aggressiveness(aggressiveness)
             self.first_Respond = False
 
+        # Gets to here before respond() so will fail
         assert self.last_trade_price is not None
         self.adaptive_component.update_short_term(best_price, best_side, self.last_trade_price, estimated_price)
 
@@ -110,12 +111,12 @@ class AAAgent(BSE.Trader):
 
     def getorder(self, time, countdown, lob):
         if len(self.orders) > 0:
-            tau = self.aggressiveness_model.compute_tau(adaptive_component.theta, adaptive_component.aggressiveness, equilibrium_estimator.estimated_price)
+            tau = self.aggressiveness_model.compute_tau(self.adaptive_component.theta, self.adaptive_component.aggressiveness, self.equilibrium_estimator.estimated_price)
             success = False
 
-            price,success = bidding_component.price(tau, success)
+            price,success = self.bidding_component.price(tau, success)
             assert price != 0
-            bidding_component.first_trading_round = False
+            self.bidding_component.first_trading_round = False
             if success:
                 return BSE.Order(self.tid, self.side, price, self.orders[0].qty, time)
 
@@ -125,10 +126,9 @@ class AAAgent(BSE.Trader):
 
         self.bidding_component.update_best_prices(self.agent_status.best_bid_price(), self.agent_status.best_ask_price())
 
-        theta = self.adaptive_component.theta
         self.aggressiveness = self.adaptive_component.aggressiveness
 
-        update = self.adaptive_component.update_short_term_from_inactivity(estimated_price)
+        update = self.adaptive_component.update_short_term_from_inactivity(estimated_price, self.agent_status.best_bid, self.agent_status.best_ask)
         if (update):
             return True
 

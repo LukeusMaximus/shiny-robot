@@ -39,18 +39,12 @@ class AdaptiveComponent:
             a = (alpha - self.alpha_min) / (self.alpha_max - self.alpha_min)
         self.theta = self.theta + self.BETA2 * (((self.THETAMAX - self.THETAMIN) * (1.0 - a) * math.exp(self.GAMMA * (a - 1.0)) + self.THETAMIN) - self.theta)
 
-    def update_short_term_from_inactivity(self, e_price):
-        side = None
+    def update_short_term_from_inactivity(self, e_price, best_bid, best_ask):
+        # if we are asking, set best_price to be the best bid on the market
+        # and vice versa
+        best_price = best_ask
         if self.side == "Ask":
-            side = "Bid"
-        else:
-            side = "Ask"
-        if side.Depth == 0:
-            return False
-        best_price = side[0].Price
-
-        if best_price == 0:
-            return False
+            best_price = best_bid 
 
         desired_price = best_price
         current_target_price = self.aggressiveness_model.compute_tau(self.theta, self.aggressiveness, e_price)
@@ -65,7 +59,7 @@ class AdaptiveComponent:
                 desired_price = self.limit_price
             increase_profit_margin = desired_price > current_target_price
 
-        if increase_profit_margin or self.agent.is_active:
+        if increase_profit_margin:
             self.update_aggressiveness(increase_profit_margin, e_price, desired_price)
             return True
 
@@ -104,7 +98,7 @@ class AdaptiveComponent:
 
     def update_aggressiveness(self, inc_aggressiveness, e_price, desired_target_price):
         delta = 0
-        r_shout = self.aggressiveness_model.compute_r_shout(self.theta, self.e_price, desired_target_price);
+        r_shout = self.aggressiveness_model.compute_r_shout(self.theta, e_price, desired_target_price);
 
         if inc_aggressiveness:
             delta = (1.0 + self.LAMBDA_R) * r_shout + self.LAMBDA_A

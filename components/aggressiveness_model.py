@@ -84,12 +84,12 @@ class AggressivenessModel:
     def inner_compute_r_shout_intra_marginal_seller(self, pi, theta, estimated_price):
         rshout = None
 
-        if (estimated_price < pi and pi <= self.PMAX):
+        if (estimated_price < pi and pi <= self.pmax):
             theta_bar = self.compute_theta_bar_seller(estimated_price, theta)
             if theta_bar != 0:
-                rshout = -(1.0 / theta_bar) * math.log(((pi - estimated_price) / (self.PMAX - estimated_price)) * (math.exp(theta_bar) - 1.0) + 1.0)
+                rshout = -(1.0 / theta_bar) * math.log(((pi - estimated_price) / (self.pmax - estimated_price)) * (math.exp(theta_bar) - 1.0) + 1.0)
             else:
-                rshout = (pi - estimated_price) / (estimated_price - self.PMAX)
+                rshout = (pi - estimated_price) / (estimated_price - self.pmax)
         elif (self.limit_price <= pi and pi <= estimated_price):
             if (theta != 0):
                 rshout = (1.0 / theta) * math.log(((pi - estimated_price) / (estimated_price - self.limit_price)) * (1.0 - math.exp(theta)) + 1.0)
@@ -100,11 +100,11 @@ class AggressivenessModel:
         return rshout
 
     def inner_compute_r_shout_extra_marginal_seller(self, pi, theta):
-        if (self.limit_price <= pi and pi <= self.PMAX):
+        if (self.limit_price <= pi and pi <= self.pmax):
             if theta != 0:
-                rshout = -(1.0 / theta) * math.log(((pi - self.limit_price) / (self.PMAX - self.limit_price)) * (math.exp(theta) - 1.0) + 1.0)
+                rshout = -(1.0 / theta) * math.log(((pi - self.limit_price) / (self.pmax - self.limit_price)) * (math.exp(theta) - 1.0) + 1.0)
             else:
-                rshout = (self.limit_price - pi) / (self.PMAX - self.limit_price);
+                rshout = (self.limit_price - pi) / (self.pmax - self.limit_price);
 
         return rshout
 
@@ -142,9 +142,9 @@ class AggressivenessModel:
         if r >= -1.0 and r < 0.0:
             if intra_marginal:
                 theta_seller = self.compute_theta_seller(estimated_price, theta)
-                tau = estimated_price + (self.PMAX - estimated_price) * ((math.exp(-r * theta_seller) - 1.0) / (math.exp(theta_seller) - 1.0))
+                tau = estimated_price + (self.pmax - estimated_price) * ((math.exp(-r * theta_seller) - 1.0) / (math.exp(theta_seller) - 1.0))
             else:
-                tau = self.limit_price + (self.PMAX - self.limit_price) * ((math.exp(-r * theta) - 1.0) / (math.exp(theta) - 1.0))
+                tau = self.limit_price + (self.pmax - self.limit_price) * ((math.exp(-r * theta) - 1.0) / (math.exp(theta) - 1.0))
         elif (r > 0.0 and r < 1.0):
             if (intra_marginal):
                 tau = self.limit_price + (estimated_price - self.limit_price) * (1.0 - ((math.exp(r * theta) - 1.0) / (math.exp(theta) - 1.0)))
@@ -155,9 +155,9 @@ class AggressivenessModel:
 
     def compute_theta_bar_seller(self, estimated_price, theta):
         if (theta != 0):
-            self.current_a = ((estimated_price - self.PMAX) / (self.estimated_Price - self.limit_price)) * (1.0 - math.exp(theta)) / theta
+            self.current_a = ((estimated_price - self.pmax) / (self.estimated_Price - self.limit_price)) * (1.0 - math.exp(theta)) / theta
         else:
-            self.current_a = (estimated_price - self.PMAX) / estimated_price
+            self.current_a = (estimated_price - self.pmax) / estimated_price
 
         return self.compute_theta_bar()
 
@@ -170,7 +170,7 @@ class AggressivenessModel:
         return self.compute_theta_bar()
 
 
-    def f(theta):
+    def f(self, theta):
         return math.exp(theta)-self.current_a * theta - 1.0
 
     def compute_theta_bar(self):
