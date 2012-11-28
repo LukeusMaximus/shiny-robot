@@ -10,26 +10,26 @@ class AdaptiveComponent:
         self.LAMBDA_R = 0.05
         self.LAMBDA_A = 0.01
         self.WS = 30
-        
+
         self.theta = 0.5
         self.limit_price = 500
         self.aggressiveness = 0
         self.transaction_prices = []
         self.alpha_min = 1000000000000000000
         self.alpha_max = -1000000000000000000
-        
+
     def update_long_term(self, t_price, e_price):
         self.transaction_prices.append(t_price)
         if len(self.transaction_prices) >= self.WS:
             self.transaction_prices == self.transaction_prices[:self.WS]
-        alpha = (sum([(x - e_price)**2 for x in self.transaction_prices]) / len(self.transaction_prices)) ** 0.5 / e_price)
+        alpha = (sum([(x - e_price)**2 for x in self.transaction_prices]) / len(self.transaction_prices)) ** 0.5 / e_price
         self.alpha_max = max(self.alpha_max, alpha)
         self.alpha_min = min(self.alpha_min, alpha)
         a = 0.5
         if self.alpha_max != self.alpha_min:
             a = (alpha - self.alpha_min) / (self.alpha_max - self.alpha_min)
         self.theta = self.theta + self.BETA2 * (((self.THETAMAX - self.THETAMIN) * (1.0 - a) * math.exp(self.GAMMA * (a - 1.0)) + self.THETAMIN) - self.theta)
-    
+
     def update_short_term(self, shoutStimulus, e_price, tau, side):
         desired_target_price = -1
         #double currentTargetPrice = _aggressivenessModel.ComputeTau(_theta, _aggressiveness, estimatedPrice);
@@ -39,7 +39,7 @@ class AdaptiveComponent:
             change_aggressiveness = True
             p_t = shoutStimulus.LastTrade.Price;
             if (side == "bid"):
-                if (tau < p_t)
+                if (tau < p_t):
                     increase_aggressiveness = True
             elif (side == "ask"):
                 if (tau > pT):
@@ -51,14 +51,14 @@ class AdaptiveComponent:
                 change_aggressiveness = True
                 increase_aggressiveness = True
                 desired_target_price = bid
-        elif (side == "ask" && shoutStimulus.Shout.Side == "ask"):
+        elif (side == "ask" and shoutStimulus.Shout.Side == "ask"):
             ask = shoutStimulus.Shout.Price
             if (tau >= ask):
                 change_aggressiveness = True
                 increase_aggressiveness = True
                 desired_target_price = ask
         if change_aggressiveness:
-            update_aggressiveness(increase_aggressiveness, e_price, desired_target_price)
+            self.update_aggressiveness(increase_aggressiveness, e_price, desired_target_price)
 
     def update_aggressiveness(self, inc_aggressiveness, e_price, desired_tau, r_shout):
         delta = 0
@@ -69,6 +69,3 @@ class AdaptiveComponent:
             delta = (1.0 - self.LAMBDA_R) * r_shout - self.LAMBDA_A
 
         self.aggressiveness = self.aggressiveness + self.BETA1 * (delta - self.aggressiveness)
-        
-        
-    
