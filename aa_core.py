@@ -157,8 +157,8 @@ class AABuyer(AACommon):
         if len(self.orders) > 0:
             if self.extramarginal():
                 r = self.limit_price()
-                if self.doa >= 0 and self.doa <= 1:
-                    r *= (1-self.doa*math.exp(self.theta*(self.doa-1)))
+                if self.doa >= -1 and self.doa <= 0:
+                    r *= (1+self.doa*math.exp(self.theta*(self.doa-1)))
                 self.tau = r
                 assert self.tau >= 1 and self.tau <= self.limit_price()
                 self.strval = "aab ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
@@ -174,8 +174,9 @@ class AABuyer(AACommon):
                 diff_from_equilibrium = self.limit_price() - self.equilibrium_price
                 print "aab am dfe", diff_from_equilibrium
 
-                if self.doa >= 0 and self.doa <= 1:
-                    self.tau = self.equilibrium_price * (1-self.doa*math.exp(self.theta*(self.doa-1)))
+
+                if self.doa >= -1 and self.doa <= 0:
+                    self.tau = self.equilibrium_price * (1+self.doa*math.exp(self.theta*(self.doa-1)))
                 elif diff_from_equilibrium == 0:
                     self.tau = self.equilibrium_price
                 else:
@@ -246,13 +247,12 @@ class AASeller(AACommon):
             if self.extramarginal():
                 r = self.limit_price()
                 if self.doa >= 0 and self.doa <= 1:
-                    r += (self.PMAX-self.limit_price())*self.doa*math.exp((self.doa-1)*self.theta)
+                    r -= (self.PMAX-self.limit_price())*self.doa*math.exp((self.doa-1)*self.theta)
                 self.tau = r
                 print "aas ame doa", self.doa, "theta", self.theta, "tau", self.tau, "lp", self.limit_price()
                 self.strval = "aas ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
                 assert self.tau <= self.PMAX and self.tau >= self.limit_price()
             else:
-                print "doa", self.doa
                 assert self.doa >= -1 and self.doa <= 1
                 assert self.equilibrium_price > 0
                 assert not self.extramarginal()
@@ -260,22 +260,15 @@ class AASeller(AACommon):
                 theta_bar = self.PMAX-self.equilibrium_price
                 assert theta_bar >= 0
                 theta_bar /= self.equilibrium_price - self.limit_price()
-                print self.limit_price()
                 assert theta_bar >= 0
-                print "eq", self.equilibrium_price
-                print "pm", self.PMAX
-                print "lp", self.limit_price()
-                print "tb1", theta_bar
                 theta_bar = math.log(theta_bar)
-                print "tb2", theta_bar
                 theta_bar -= self.theta
-                print "tb3", theta_bar
                 if theta_bar < 0:
                     print "tb<0"
                     theta_bar = 0
 
-                if self.doa >= 0 and self.doa <= 1:
-                    self.tau = self.equilibrium_price + ((self.PMAX - self.equilibrium_price)*self.doa*math.exp((self.doa+1)*self.theta))
+                if self.doa >= -1 and self.doa <= 0:
+                    self.tau = (self.PMAX - self.equilibrium_price)*(1-((math.exp(-self.doa * theta_bar)-1)/(math.exp(theta_bar)-1)))
                 else:
                     #doa -0.9875
                     print "this maths, not the other maths"
