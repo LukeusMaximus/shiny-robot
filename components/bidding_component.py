@@ -1,7 +1,7 @@
 class BiddingComponent:
     def __init__(self, side, limit_price, instrument):
 
-        self.limit_price = limit_price          
+        self.limit_price = limit_price
         self.first_trading_round = True
         self.current_instrument = instrument
 
@@ -17,6 +17,9 @@ class BiddingComponent:
         if (side == "Bid"):
             self.inner_price = self.inner_price_buyer
 
+    def update_limit_price(self, price):
+        self.limit_price = price
+
     def update_best_prices(self, best_bid, best_ask):
         if (best_bid == 0.0):
             best_bid = self.current_instrument.min_price
@@ -26,7 +29,7 @@ class BiddingComponent:
         self.best_bid = best_bid
         self.best_ask = best_ask
 
-    def price(self, tau):
+    def price(self, tau, success):
         if not self.first_trading_round and tau < 0:
             return tau, False
         price, success = self.inner_price(tau)
@@ -46,7 +49,7 @@ class BiddingComponent:
         elif self.limit_price > self.best_bid:
             success = True
             if self.first_trading_round:
-                best_ask_plus = (1.0 + self.LAMBDA_R) * self.bestAsk + self.LAMBDA_A
+                best_ask_plus = (1.0 + self.LAMBDA_R) * self.best_ask + self.LAMBDA_A
                 price = self.best_bid + (min(self.limit_price, best_ask_plus) - self.best_bid) / self.eta
             else:
                 if self.best_ask <= tau:
@@ -75,6 +78,6 @@ class BiddingComponent:
                 if self.best_bid >= tau:
                     price = self.best_bid
                 else:
-                    price = self.best_bsk - (self.best_ask - tau) / self.eta
+                    price = self.best_ask - (self.best_ask - tau) / self.eta
         return price, success
 

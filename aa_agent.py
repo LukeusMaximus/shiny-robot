@@ -8,7 +8,7 @@ class CurrentInstrument():
     def __init__(self):
         self.maxprice = 1000
         self.minprice = 1
-        self.pricetick = 0.01
+        self.price_tick = 0.01
 
 class AgentStatus():
     def __init__(self):
@@ -50,27 +50,23 @@ class AAAgent(BSE.Trader):
             self.previous_limit = order.price
         elif (self.previous_limit != order.price):
             self.previous_limit = order.price
-            aggressiveness_model.update_limit_price(limit_price);
-            adaptive_component.update_limit_price(limit_price);
-            bidding_component.update_limit_price(limit_price);
+            self.aggressiveness_model.update_limit_price(order.price)
+            self.adaptive_component.update_limit_price(order.price)
+            self.bidding_component.update_limit_price(order.price)
 
         self.adjust_from_inactivity()
 
     def respond(self, time, lob, trade, verbose):
 
         something = trade is not None
-        if len(self.orders) > 0:
+        if len(self.orders) > 0 and self.last_trade_price is not None:
             if lob["bids"]["best"] != self.agent_status.best_bid_price():
                 self.respond_to_new_best_price(trade, lob["bids"]["best"], "Bid")
                 something = True
-            else:
-                assert trade is None
 
             if lob["asks"]["best"] != self.agent_status.best_ask_price():
                 self.respond_to_new_best_price(trade, lob["asks"]["best"], "Ask")
                 something = True
-            else:
-                assert trade is None
 
         self.agent_status.best_bid = lob["bids"]["best"]
         self.agent_status.best_ask = lob["asks"]["best"]
@@ -84,6 +80,9 @@ class AAAgent(BSE.Trader):
     def respond_to_new_best_price(self, trade, best_price, best_side):
         accepted = trade is not None
         estimated_price = self.equilibrium_estimator.estimated_price
+        if estimated_price is None:
+            return
+        print self.equilibrium_estimator.estimated_price
         transaction_price = None
 
         if accepted:
@@ -104,7 +103,7 @@ class AAAgent(BSE.Trader):
 
         # Gets to here before respond() so will fail
         assert self.last_trade_price is not None
-        self.adaptive_component.update_short_term(best_price, best_side, self.last_trade_price, estimated_price)
+        self.adaptive_component.update_short_term(trade, best_price, best_side, self.last_trade_price, estimated_price)
 
 
         return None

@@ -17,6 +17,7 @@ class AggressivenessModel:
         self.newton_solver = NewtonSolver()
         self.last_a = None
         self.last_soultion = None
+        self.equilibrium_estimator = self.agent.equilibrium_estimator
 
 
     def update_limit_price(self, p):
@@ -62,7 +63,9 @@ class AggressivenessModel:
                 rshout = (pi - estimated_price) / (self.limit_price - estimated_price)
         elif (estimated_price <= pi and pi <= self.limit_price):
             if theta != 0:
-                rshout = (1.0 / theta) * math.log(((pi - estimated_price) / (self.limit_price - self.estimated_price)) * (math.exp(theta) - 1.0) + 1.0)
+                print self.limit_price
+                print estimated_price
+                rshout = (1.0 / theta) * math.log(((pi - estimated_price) / (self.limit_price - estimated_price)) * (math.exp(theta) - 1.0) + 1.0)
             else:
                 rshout = (pi - estimated_price) / (self.limit_price - estimated_price)
 
@@ -155,7 +158,7 @@ class AggressivenessModel:
 
     def compute_theta_bar_seller(self, estimated_price, theta):
         if (theta != 0):
-            self.current_a = ((estimated_price - self.pmax) / (self.estimated_Price - self.limit_price)) * (1.0 - math.exp(theta)) / theta
+            self.current_a = ((estimated_price - self.pmax) / (estimated_Price - self.limit_price)) * (1.0 - math.exp(theta)) / theta
         else:
             self.current_a = (estimated_price - self.pmax) / estimated_price
 
