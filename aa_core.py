@@ -100,7 +100,7 @@ class AACommon:
     def adaptive_component(self, trade, best_price):
         self.lambda_val = self.lambda_value(best_price, trade)
         self.adaptive_component2()
-        
+
     def adaptive_component2(self):
         self.short_term_learning(self.lambda_val)
         self.long_term_learning()
@@ -161,6 +161,8 @@ class AABuyer(AACommon):
                 if self.doa >= -1 and self.doa <= 0:
                     r *= (1+self.doa*math.exp(self.theta*(self.doa-1)))
                 self.tau = r
+                self.tau = max(1, self.tau)
+                self.tau = min(self.limit_price(), self.tau)
                 assert self.tau >= 1 and self.tau <= self.limit_price()
                 self.strval = "aab ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
                 print "aab ame tau", self.tau
@@ -193,6 +195,8 @@ class AABuyer(AACommon):
                     t = diff_from_equilibrium*(1-(self.doa+1)*math.exp(self.doa*theta_bar))
                     t += self.equilibrium_price
                     self.tau = t
+                self.tau = min(1, self.tau)
+                self.tau = max(self.tau, self.limit_price())
                 assert self.tau >= 1 and self.tau <= self.limit_price()
                 self.strval = "aab ami tau = " + str(self.tau) + " lp = " + str(self.limit_price())
                 print "aab ami tau", self.tau
@@ -252,6 +256,10 @@ class AASeller(AACommon):
                 self.tau = r
                 print "aas ame doa", self.doa, "theta", self.theta, "tau", self.tau, "lp", self.limit_price()
                 self.strval = "aas ame tau = " + str(self.tau) + " lp = " + str(self.limit_price())
+                if self.tau >= self.PMAX:
+                    self.tau = self.PMAX
+                elif self.tau <= self.limit_price():
+                    self.tau = self.limit_price()
                 assert self.tau <= self.PMAX and self.tau >= self.limit_price()
             else:
                 assert self.doa >= -1 and self.doa <= 1

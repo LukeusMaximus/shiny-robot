@@ -47,7 +47,7 @@
 # could import pylab here for graphing etc
 import sys
 import random
-import aa_agent
+import aa_trader
 
 
 bse_sys_minprice = 1    # minimum price in the system, in cents/pennies
@@ -757,7 +757,7 @@ def populate_market(traders_spec, traders, shuffle, verbose):
                 elif robottype == 'ZIP':
                         return Trader_ZIP('ZIP', name, 0.00)
                 elif robottype == 'AA':
-                        return aa_agent.AAAgent('AA', name, 0.00)
+                        return aa_trader.AATrader('AA', name, 0.00)
                 else:
                         sys.exit('FATAL: don\'t know robot type %s\n' % robottype)
 
