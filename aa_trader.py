@@ -119,6 +119,6 @@ class AATrader(BSE.Trader):
             self.buyer_agent.receive_trade(trade)
             self.seller_agent.receive_trade(trade)
             
-    def graph_values(self):
-        self.buyer_agent.graph_values()
-        self.seller_agent.graph_values()
+    def graph_values(self, spec):
+        self.buyer_agent.graph_values(spec)
+        self.seller_agent.graph_values(spec)

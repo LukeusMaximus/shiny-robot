@@ -48,6 +48,7 @@
 import sys
 import random
 import aa_trader
+import matplotlib.pyplot as plt
 
 bse_sys_minprice = 1    # minimum price in the system, in cents/pennies
 bse_sys_maxprice = 1000 # maximum price in the system, in cents/pennies
@@ -1002,6 +1003,8 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, dum
 
         pending_orders = []       
 
+        orders_returned = []
+
         while time < endtime:
 
                 # how much time left, as a percentage?
@@ -1021,6 +1024,7 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, dum
                 print "dat trader", tid
 
                 if order != None:
+                        orders_returned.append((traders[tid].ttype, order))
                         # send order to exchange
                         trade = exchange.process_order2(time, order, True)
                         if trade != None:
@@ -1039,6 +1043,7 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, dum
                                 traders[t].respond(time, lob, trade, respond_verbose)
 
                         print "aa lob", lob
+                        
                 time = time + timestep
 
 
@@ -1049,11 +1054,46 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, dum
         # write trade_stats for this experiment NB end-of-session summary only
         trade_stats(sess_id, traders, tdump, time, exchange.publish_lob(time, lob_verbose))
 
+        make_pretty_graph(orders_returned, traders_spec["buyers"], endtime)
+
         for t in traders:
             if traders[t].ttype == "AA":
-                traders[t].graph_values()
+                traders[t].graph_values(traders_spec["buyers"], endtime)
 
 #############################
+
+def make_pretty_graph(orders_returned, spec, length):
+    types = []
+    for o in orders_returned:
+        if not (o[0] in types):
+            types.append(o[0])
+    bids = [x for x in orders_returned if x[1].otype == "Bid"]
+    asks = [x for x in orders_returned if x[1].otype == "Ask"]
+    spec_str = ""
+    for x in spec:
+        spec_str += x[0] + str(x[1])
+    for t in types:
+        type_orders = [x[1] for x in bids if x[0] == t]
+        times = [x.time for x in type_orders]
+        prices = [x.price for x in type_orders]
+        plt.figure(3)
+        if t == "AA":
+            plt.plot(times, prices, 'ro')
+        else:
+            plt.plot(times, prices, 'rx')
+        type_orders = [x[1] for x in asks if x[0] == t]
+        times = [x.time for x in type_orders]
+        prices = [x.price for x in type_orders]
+        plt.figure(4)
+        if t == "AA":
+            plt.plot(times, prices, 'bo')
+        else:
+            plt.plot(times, prices, 'bx')
+    plt.figure(3)
+    plt.savefig("figures/" + spec_str + "_" + length + "_all_bids.png")
+    plt.figure(4)
+    plt.savefig("figures/" + spec_str + "_" + length + "_all_asks.png")
+    
 
 ## Below here is where we set up and run a series of experiments
 
@@ -1076,7 +1116,7 @@ if __name__ == "__main__":
         order_sched = {'sup':supply_schedule, 'dem':demand_schedule,
                        'interval':30, 'timemode':'drip-poisson'}
 
-        buyers_spec = [('ZIC',10),('AA',1)]
+        buyers_spec = [('SHVR',1),('AA',1)]
         sellers_spec = buyers_spec
         traders_spec = {'sellers':sellers_spec, 'buyers':buyers_spec}
 

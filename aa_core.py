@@ -42,6 +42,9 @@ class RoundRobinBuffer:
     def __iter__(self):
         return self.buffer.__iter__()
 
+plotted_buy = False
+plotted_sell = False
+
 class AACommon:
     def __init__(self):
         #-1 is most aggressive
@@ -147,13 +150,14 @@ class AACommon:
         print "aa eq", self.equilibrium_price
         self.equilibrium_price = mean
         
-    def graph_values(self):
+    def graph_values(self, spec, length):
+        global plotted_buy, plotted_sell
         data = None
         mode = None
-        if len(self.bids) > 0:
+        if not plotted_buy and len(self.bids) > 0:
             mode = "buy"
             data = self.bids
-        elif len(self.asks) > 0:
+        elif not plotted_sell and len(self.asks) > 0:
             mode = "sell"
             data = self.asks
         if mode != None:
@@ -162,12 +166,17 @@ class AACommon:
             limits = [x["limit"] for x in data]
             equs = [x["equ"] for x in data]
             if mode == "buy":
+                plotted_buy = True
                 plt.figure(1)
                 plt.plot(times, prices, 'ro', times, limits, 'rx', times, equs, 'r-')
             else:
+                plotted_sell = True
                 plt.figure(2)
                 plt.plot(times, prices, 'bo', times, limits, 'bx', times, equs, 'b-')
-            plt.savefig("figures/" + mode + "_image.png")
+            spec_str = ""
+            for x in spec:
+                spec_str += x[0] + str(x[1])
+            plt.savefig("figures/" + spec_str + "_" + length + "_" + mode + "_image.png")
         
 class AABuyer(AACommon):
 
