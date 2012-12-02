@@ -3,8 +3,7 @@ import BSE
 import copy
 
 import math
-import random
-
+import matplotlib.pyplot as plt
 
 #guesswork comment!
 ALPHA_MIN = 0.02;
@@ -69,6 +68,8 @@ class AACommon:
 
         # DEBUG
         self.strval = ""
+        self.bids = []
+        self.asks = []
 
     def interesting_trades(self):
         return self.previous_trades
@@ -145,7 +146,29 @@ class AACommon:
         #print "aa eq", mean
         print "aa eq", self.equilibrium_price
         self.equilibrium_price = mean
-
+        
+    def graph_values(self):
+        data = None
+        mode = None
+        if len(self.bids) > 0:
+            mode = "buy"
+            data = self.bids
+        elif len(self.asks) > 0:
+            mode = "sell"
+            data = self.asks
+        if mode != None:
+            times = [x["time"] for x in data]
+            prices = [x["price"] for x in data]
+            limits = [x["limit"] for x in data]
+            equs = [x["equ"] for x in data]
+            if mode == "buy":
+                plt.figure(1)
+                plt.plot(times, prices, 'ro', times, limits, 'rx', times, equs, 'r-')
+            else:
+                plt.figure(2)
+                plt.plot(times, prices, 'bo', times, limits, 'bx', times, equs, 'b-')
+            plt.savefig("figures/" + mode + "_image.png")
+        
 class AABuyer(AACommon):
 
     def __init__(self):
@@ -235,6 +258,7 @@ class AABuyer(AACommon):
             else:
                 print "aab bc case d"
                 bid = market_best_bid + (self.tau-market_best_bid)/self.nyan
+            self.bids.append({"tid":order.tid, "price":bid, "time":time, "limit":order.price, "equ":self.equilibrium_price})
             return BSE.Order(order.tid, "Bid", bid, order.qty, time)
         return None
 
@@ -327,5 +351,6 @@ class AASeller(AACommon):
                 print "aas bc case d"
                 ask = market_best_ask - (market_best_ask - self.tau)/self.nyan
                 assert ask >= self.limit_price()
+            self.asks.append({"tid":order.tid, "price":ask, "time":time, "limit":order.price, "equ":self.equilibrium_price})
             return BSE.Order(order.tid, "Ask", ask, order.qty, time)
         return None

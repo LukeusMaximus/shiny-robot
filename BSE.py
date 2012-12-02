@@ -48,7 +48,6 @@
 import sys
 import random
 import aa_trader
-import aa_agent
 
 bse_sys_minprice = 1    # minimum price in the system, in cents/pennies
 bse_sys_maxprice = 1000 # maximum price in the system, in cents/pennies
@@ -758,8 +757,6 @@ def populate_market(traders_spec, traders, shuffle, verbose):
                         return Trader_ZIP('ZIP', name, 0.00)
                 elif robottype == 'AA':
                         return aa_trader.AATrader('AA', name, 0.00)
-                elif robottype == 'AA2':
-                        return aa_agent.AAAgent('AA2', name, 0.00)
                 else:
                         sys.exit('FATAL: don\'t know robot type %s\n' % robottype)
 
@@ -1052,7 +1049,9 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, dum
         # write trade_stats for this experiment NB end-of-session summary only
         trade_stats(sess_id, traders, tdump, time, exchange.publish_lob(time, lob_verbose))
 
-
+        for t in traders:
+            if traders[t].ttype == "AA":
+                traders[t].graph_values()
 
 #############################
 
@@ -1077,7 +1076,7 @@ if __name__ == "__main__":
         order_sched = {'sup':supply_schedule, 'dem':demand_schedule,
                        'interval':30, 'timemode':'drip-poisson'}
 
-        buyers_spec = [('ZIC',10),('AA2',1)]
+        buyers_spec = [('ZIC',10),('AA',1)]
         sellers_spec = buyers_spec
         traders_spec = {'sellers':sellers_spec, 'buyers':buyers_spec}
 
