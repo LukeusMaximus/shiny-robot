@@ -1,42 +1,8 @@
-% THIS IS SIGPROC-SP.TEX - VERSION 3.1
-% WORKS WITH V3.2SP OF ACM_PROC_ARTICLE-SP.CLS
-% APRIL 2009
-%
-% It is an example file showing how to use the 'acm_proc_article-sp.cls' V3.2SP
-% LaTeX2e document class file for Conference Proceedings submissions.
-% ----------------------------------------------------------------------------------------------------------------
-% This .tex file (and associated .cls V3.2SP) *DOES NOT* produce:
-%       1) The Permission Statement
-%       2) The Conference (location) Info information
-%       3) The Copyright Line with ACM data
-%       4) Page numbering
-% ---------------------------------------------------------------------------------------------------------------
-% It is an example which *does* use the .bib file (from which the .bbl file
-% is produced).
-% REMEMBER HOWEVER: After having produced the .bbl file,
-% and prior to final submission,
-% you need to 'insert'  your .bbl file into your source .tex file so as to provide
-% ONE 'self-contained' source file.
-%
-% Questions regarding SIGS should be sent to
-% Adrienne Griscti ---> griscti@acm.org
-%
-% Questions/suggestions regarding the guidelines, .tex and .cls files, etc. to
-% Gerald Murray ---> murray@hq.acm.org
-%
-% For tracking purposes - this is V3.1SP - APRIL 2009
-
 \documentclass{acm_proc_article-sp}
 
 \begin{document}
 
-\title{A Sample {\ttlit ACM} SIG Proceedings Paper in LaTeX
-Format\titlenote{(Does NOT produce the permission block, copyright information nor page numbering). For use with ACM\_PROC\_ARTICLE-SP.CLS. Supported by ACM.}}
-\subtitle{[Extended Abstract]
-\titlenote{A full version of this paper is available as
-\textit{Author's Guide to Preparing ACM SIG Proceedings Using
-\LaTeX$2_\epsilon$\ and BibTeX} at
-\texttt{www.acm.org/eaddress.htm}}}
+\title{Algorithmic and Economic Aspects of the Internet}
 %
 % You need the command \numberofauthors to handle the 'placement
 % and alignment' of the authors beneath the title.
@@ -62,7 +28,7 @@ Format\titlenote{(Does NOT produce the permission block, copyright information n
 % without further effort on your part as the last section in
 % the body of your article BEFORE References or any Appendices.
 
-\numberofauthors{8} %  in this sample file, there are a *total*
+\numberofauthors{2} %  in this sample file, there are a *total*
 % of EIGHT authors. SIX appear on the 'first-page' (for formatting
 % reasons) and the remaining two appear in the \additionalauthors section.
 %
@@ -79,157 +45,168 @@ Format\titlenote{(Does NOT produce the permission block, copyright information n
 %
 % 1st. author
 \alignauthor
-Ben Trovato\titlenote{Dr.~Trovato insisted his name be first.}\\
-       \affaddr{Institute for Clarity in Documentation}\\
-       \affaddr{1932 Wallamaloo Lane}\\
-       \affaddr{Wallamaloo, New Zealand}\\
-       \email{trovato@corporation.com}
+Sam Phippen\titlenote{sp9857}\\
+       \email{samphippen@googlemail.com}
 % 2nd. author
 \alignauthor
-G.K.M. Tobin\titlenote{The secretary disavows
-any knowledge of this author's actions.}\\
-       \affaddr{Institute for Clarity in Documentation}\\
-       \affaddr{P.O. Box 1212}\\
-       \affaddr{Dublin, Ohio 43017-6221}\\
-       \email{webmaster@marysville-ohio.com}
-% 3rd. author
-\alignauthor Lars Th{\o}rv{\"a}ld\titlenote{This author is the
-one who did all the really hard work.}\\
-       \affaddr{The Th{\o}rv{\"a}ld Group}\\
-       \affaddr{1 Th{\o}rv{\"a}ld Circle}\\
-       \affaddr{Hekla, Iceland}\\
-       \email{larst@affiliation.org}
-\and  % use '\and' if you need 'another row' of author names
-% 4th. author
-\alignauthor Lawrence P. Leipuner\\
-       \affaddr{Brookhaven Laboratories}\\
-       \affaddr{Brookhaven National Lab}\\
-       \affaddr{P.O. Box 5000}\\
-       \email{lleipuner@researchlabs.org}
-% 5th. author
-\alignauthor Sean Fogarty\\
-       \affaddr{NASA Ames Research Center}\\
-       \affaddr{Moffett Field}\\
-       \affaddr{California 94035}\\
-       \email{fogartys@amesres.org}
-% 6th. author
-\alignauthor Charles Palmer\\
-       \affaddr{Palmer Research Laboratories}\\
-       \affaddr{8600 Datapoint Drive}\\
-       \affaddr{San Antonio, Texas 78229}\\
-       \email{cpalmer@prl.com}
+Luke Murray\titlenote{lm9131}
+       \email{lm9131@bris.ac.uk}
 }
 % There's nothing stopping you putting the seventh, eighth, etc.
 % author on the opening page (as the 'third row') but we ask,
 % for aesthetic reasons that you place these 'additional authors'
 % in the \additional authors block, viz.
-\additionalauthors{Additional authors: John Smith (The Th{\o}rv{\"a}ld Group,
-email: {\texttt{jsmith@affiliation.org}}) and Julius P.~Kumquat
-(The Kumquat Consortium, email: {\texttt{jpkumquat@consortium.net}}).}
-\date{30 July 1999}
 % Just remember to make sure that the TOTAL number of authors
 % is the number that will appear on the first page PLUS the
 % number that will appear in the \additionalauthors section.
 
 \maketitle
 \begin{abstract}
-This paper provides a sample of a \LaTeX\ document which conforms to
-the formatting guidelines for ACM SIG Proceedings.
-It complements the document \textit{Author's Guide to Preparing
-ACM SIG Proceedings Using \LaTeX$2_\epsilon$\ and Bib\TeX}. This
-source file has been written with the intention of being
-compiled under \LaTeX$2_\epsilon$\ and BibTeX.
 
-The developers have tried to include every imaginable sort
-of ``bells and whistles", such as a subtitle, footnotes on
-title, subtitle and authors, as well as in the text, and
-every optional component (e.g. Acknowledgments, Additional
-Authors, Appendices), not to mention examples of
-equations, theorems, tables and figures.
+For the assignment we attempted to implement the Adaptive
+Aggressive\cite{Vytellingum:AA} trading agent strategy. Even with corrections
+emailed by D. Cliff we found that our strategy does not trade as efficiently as
+is implied in other background research\cite{DC:dominate}. In this paper we've
+done a comparative analysis of the existing trading agents provided in BSE,
+along with our implementation. We have also performed a post mortem analysis as
+to why we believe that our trader is not trading as efficiently as expected.
 
-To make best use of this sample document, run it through \LaTeX\
-and BibTeX, and compare this source code with the printed
-output produced by the dvi file.
+We had initially set our sights on taking an implementation of AA and trying to
+improve upon it, with a view to building something new and potentially more
+effective, however, having found ourselves in a position where the agent is
+nowhere near as effective as we expected, this was not a good springboard for
+extension.
+
 \end{abstract}
 
-% A category with the (minimum) three required fields
-\category{H.4}{Information Systems Applications}{Miscellaneous}
-%A category including the fourth, optional field follows...
-\category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
+\section{Analysis of our agent with existing traders}
 
-\terms{Theory}
+\subsection {Many versus many tests} For the analysis we started with a many
+versus many test of our implementation versus each of the agents provided with
+BSE. In this experiment we used the stepped supply and demand schedule provided
+with an early version of the Bristol Stock Exchange, with three distinct time
+periods, the first having prices in the range 10-190, the second in the range
+200-300 and the third having prices in the same range as the first. In the many
+versus many test 20 agents of each type were used (10 sellers and 10 buyers),
+and the tests with this supply and demand schedule were repeated a total of 25
+times.
 
-\keywords{ACM proceedings, \LaTeX, text tagging} % NOT required for Proceedings
+The table below shows the number of rounds that our agent lost, the mean
+difference in profit between the other agent and ours, and the standard
+deviation of the difference in profit also.
 
-\section{Introduction}
-The \textit{proceedings} are the records of a conference.
-ACM seeks to give these conference by-products a uniform,
-high-quality appearance.  To do this, ACM has some rigid
-requirements for the format of the proceedings documents: there
-is a specified format (balanced  double columns), a specified
-set of fonts (Arial or Helvetica and Times Roman) in
-certain specified sizes (for instance, 9 point for body copy),
-a specified live area (18 $\times$ 23.5 cm [7" $\times$ 9.25"]) centered on
-the page, specified size of margins (1.9 cm [0.75"]) top, (2.54 cm [1"]) bottom
-and (1.9 cm [.75"]) left and right; specified column width
-(8.45 cm [3.33"]) and gutter size (.83 cm [.33"]).
+\begin{center}
+  \begin{tabular}{ l | l | l | l }
+        Agent Type & Tests lost & $\Delta$ Profit Mean & $\Delta$ Profit StDev \\\hline
+        Giveaway & 24 & 63.84 & 34.16\\
+        ZIC & 25 & 75.38 & 36.15\\
+        Shaver & 25 & 95.63 & 21.01\\
+        Sniper & 25 & 22.67 & 12.78\\
+        ZIP & 25 & 97.08 & 41.38\\
+  \end{tabular}
+\end{center}
 
-The good news is, with only a handful of manual
-settings\footnote{Two of these, the {\texttt{\char'134 numberofauthors}}
-and {\texttt{\char'134 alignauthor}} commands, you have
-already used; another, {\texttt{\char'134 balancecolumns}}, will
-be used in your very last run of \LaTeX\ to ensure
-balanced column heights on the last page.}, the \LaTeX\ document
-class file handles all of this for you.
+In almost all of these cases our agent consistently generated a profit,
+however when run against the Shaver agent, an oddity occurred. The agent on
+average generated a loss which can be seen on the box plot in figure 1.
 
-The remainder of this document is concerned with showing, in
-the context of an ``actual'' document, the \LaTeX\ commands
-specifically available for denoting the structure of a
-proceedings paper, rather than with giving rigorous descriptions
-or explanations of such commands.
+\begin{figure}[h!] 
+\includegraphics[width=80mm]{box-plot-image.png}
 
-\section{The {\secit Body} of The Paper}
-Typically, the body of a paper is organized
-into a hierarchical structure, with numbered or unnumbered
-headings for sections, subsections, sub-subsections, and even
-smaller sections.  The command \texttt{{\char'134}section} that
-precedes this paragraph is part of such a
-hierarchy.\footnote{This is the second footnote.  It
-starts a series of three footnotes that add nothing
-informational, but just give an idea of how footnotes work
-and look. It is a wordy one, just so you see
-how a longish one plays out.} \LaTeX\ handles the numbering
-and placement of these headings for you, when you use
-the appropriate heading commands around the titles
-of the headings.  If you want a sub-subsection or
-smaller part to be unnumbered in your output, simply append an
-asterisk to the command name.  Examples of both
-numbered and unnumbered headings will appear throughout the
-balance of this sample document.
+\caption{Box plot of average profits of the 20 AA agents implemented by us in
+the many vs many test against shaver agents. Box plot generated from:
+http://www.alcula.com/calculators/statistics/box-plot/}
+\end{figure}
 
-Because the entire article is contained in
-the \textbf{document} environment, you can indicate the
-start of a new paragraph with a blank line in your
-input file; that is why this sentence forms a separate paragraph.
+-- insert explanation about that here.
 
-\subsection{Type Changes and {\subsecit Special} Characters}
-We have already seen several typeface changes in this sample.  You
-can indicate italicized words or phrases in your text with
-the command \texttt{{\char'134}textit}; emboldening with the
-command \texttt{{\char'134}textbf}
-and typewriter-style (for instance, for computer code) with
-\texttt{{\char'134}texttt}.  But remember, you do not
-have to indicate typestyle changes when such changes are
-part of the \textit{structural} elements of your
-article; for instance, the heading of this subsection will
-be in a sans serif\footnote{A third footnote, here.
-Let's make this a rather short one to
-see how it looks.} typeface, but that is handled by the
-document class file. Take care with the use
-of\footnote{A fourth, and last, footnote.}
-the curly braces in typeface changes; they mark
-the beginning and end of
-the text that is to be in the different typeface.
+\subsection{1 v 1 tests}
+Given these initially dismal results, we decided that a good place to start a
+detailed analysis would be a 1v1 test with the Giveaway trader, which is
+clearly the worst of all the traders within the BSE system. 300 1v1 tests were
+performed, we used the same schedule as the many versus many test. Results
+where both bots made zero profit were eliminated, this brought the number of
+tests included for analysis down from 300 to 242. Of these tests 103 were won
+by Giveaway and 139 were won by our agent. The distributions of profit for each
+agent, as well as the distribution of differences in profit can be seen in the
+following histograms.
+
+\begin{figure}[h!] \includegraphics[width=80mm]{giveaway_1_v_1.png}
+\caption{Histogram of profit distributions over 300 similar trading runs for
+the two bot types used in the 1v1 test. Note axis are different for the two
+bots} \end{figure}
+
+\begin{figure}[h!] \includegraphics[width=80mm]{giveaway_1_v_1_delta.png}
+\caption {Histogram showing the difference between Giveaway and our AA implementation,
+positive profit represents cases where Giveaway made more profit than AA}
+\end{figure}
+
+\newpage
+Upon initially inspecting these graphs we had assumed that our agent should
+lose to Giveaway, however we checked the medians of the distributions and noted
+that the median profit of the Giveaway agent (1.7) was less than the median
+profit (50.0) of our agent. We feel that this difference in profits is the
+reason for our agent's overall victory against Giveaway. To determine if the
+difference in medians is significant we decided to use the Wilcoxon signed-rank
+test\cite{wiki:wilcoxon}. We like this test because:
+
+\begin{enumerate}
+\item It makes no assumptions about the underlying
+distribution of profit pairs, as we can see from the histogram, these are
+nowhere near normally distributed.
+
+\item It handles the fact that the pairs are dependant but the individual runs
+are independent.
+
+\item We feel that the assumptions the distribution makes are fulfilled here:
+the pairs do come from the same distributions. The pairs have been generated
+largely at random by running different tests and collecting results. The data
+are obviously ordinal as they are floating amounts of profit.
+
+\end{enumerate}
+
+In order to conduct this test we represented each run as a pair of
+$(profit_{giveaway}, profit_{agent})$. The profits in the pair are taken from
+the average profit column in the output of running BSE, so in fact the profit
+values are divided by two, because their are two of each agent running in the
+system. This will not effect the output of the test, as the change in magnitude
+is the same for both agents. The test runs over the difference between the
+first and second value in the pair. Our null hypothesis $H0$ is that the median
+difference of each pair is zero, with our positive hypothesis $H1$ being that
+the median difference of each pair is not zero. We performed the test using
+scipy's built in Wilcoxon signed-rank test implementation\cite{scipy:wilcoxon}
+and the results were extremely conclusive.  With $p=1.2\times10^{-6}$ we reject
+$H0$ and conclude that the difference in medians is significant, as such the
+profits generated by our agent are significantly better than Giveaway's.
+
+This test was repeated for each of ZIC, Shaver, Sniper and ZIP. In each case
+the results were that our bot performed significantly worse than the other agent (p < 0.01
+in each case).
+
+\subsection{One in many tests}
+We also evaluated the agent initially in a one versus many test against a ZIC
+trader which gave better results. Using a similar strategy above we started
+with 25 tests to determine winners and average profits, however the results
+were not totally conclusive, so we decided to generate some 300 experimental
+results in order to attempt to draw conclusions about whether the bot performs
+better in one v many tests. The results are shown below, using the same supply
+and demand schedule, and two of our agent (1 buyer, 1 seller) and 20 of
+the other agent (10 buyers, 10 sellers):
+
+\begin{center}
+\begin{tabular}{ l|l|l|l }
+Agent Type & Tests lost & $\Delta$ Profit Mean & $\Delta$ Profit StDev \\
+\hline
+Giveaway & 157 & -2.28 & 86.95\\ 
+ZIC & 225 & 52.86 & 83.99\\ 
+Shaver & 287 & 76.36 & 46.06\\ 
+Sniper & 256 & 19.49 & 16.74\\ 
+ZIP & 234 & 64.76 & 89.76
+\end{tabular}
+\end{center}
+
+We can see here that the agent performs better when trading on it's own than in
+a small swarm.
 
 You can use whatever symbols, accented characters, or
 non-English characters you need anywhere in your document;
