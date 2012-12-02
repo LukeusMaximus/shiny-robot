@@ -37,7 +37,7 @@ class AdaptiveComponent:
         a = 0.5
         if self.alpha_max != self.alpha_min:
             a = (alpha - self.alpha_min) / (self.alpha_max - self.alpha_min)
-        self.theta = self.theta + self.BETA2 * (((self.THETAMAX - self.THETAMIN) * (1.0 - a) * math.exp(self.GAMMA * (a - 1.0)) + self.THETAMIN) - self.theta)
+        self.theta = self.theta_min + ((self.theta_max - self.theta_min)* ((1 - math.exp(self.gamma * (a - 1)))/(1 - math.exp(-self.GAMMA))))
 
     def update_short_term_from_inactivity(self, e_price, best_bid, best_ask):
         # if we are asking, set best_price to be the best bid on the market

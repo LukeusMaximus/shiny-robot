@@ -63,7 +63,7 @@ class AACommon:
         self.weight_decay = 0.9
         self.nyan = 3
         #this is a magical ass pull by luke
-        self.squiggle = 2
+        self.gamma = 2
 
         self.previous_trades = RoundRobinBuffer(self.N)
 
@@ -91,7 +91,7 @@ class AACommon:
         alpha_delta = ALPHA_MAX - ALPHA_MIN
         theta_delta = THETA_MAX - THETA_MIN
         
-        ts = THETA_MIN + theta_delta * ((1-math.exp(self.squiggle * ((alpha - ALPHA_MIN/alpha_delta) - 1))) / 1-math.exp(-self.squiggle))
+        ts = THETA_MIN + theta_delta * ((1-math.exp(self.gamma * ((alpha - ALPHA_MIN/alpha_delta) - 1))) / 1-math.exp(-self.gamma))
 
         print "aa ltl old theta", self.theta
         self.theta = self.theta + self.learning_rate_beta2*(ts-self.theta)
