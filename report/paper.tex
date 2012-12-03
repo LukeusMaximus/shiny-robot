@@ -203,7 +203,7 @@ schedules listed below. We use n=300 as our number of trials, 1 v 1 tests and a
 total time period length of 1800. Initially all tests were performed against
 ZIC
 
-\subsection{Totally open market}
+\subsubsection{Totally open market}
 
 In this set of trials we used the hard limits of BSE, minimum price of 1 and
 maximum price of 1000 for both the supply and demand curves, for the entire
@@ -211,20 +211,95 @@ time range, using a drip-poisson timemode with a 30 second replenishment time.
 The idea behind this experiment is to gather an understanding as to how our
 agent performs in a totally unconstrained environment.
 
+The results of this experiment are fairly clear with 164 trials containing
+non-zero trading and ZIC winning 115 of these with a median profit of 26973.0
+versus a median profit of 0 for our agent the Wilcoxon test shows a clear
+statisitical edge for ZIC (p < 0.01).
+
+\subsubsection{Massive financial crash}
+
+In this test we start with a fairly stable market with the price ranging
+between 600 and 700. We then intentionally very rapidly crash the market by
+dropping the price range to 1-100 for a short range of time before slowly
+ramping the price back up.  Refer to figure 4 for the ask and bid orders
+issued in one of the 300 example runs.
+
+The rationale behind this is the fact that our agent tracks the equilibrium price
+with some accuracy, and as such may be able to more efficiently issue a trade
+than ZIC, which is placing its trades at random within the limit prices it has
+been given.
+
+In these conditions it is of course extremely difficult for any agent to act
+within the market. We have also included a graph of our agent's equilibrium
+estimator, this shows that the estimate does a pretty good job keeping up with
+the extreme turbulence within the market.
+
+In this experiment all 300 trials had cases where trading occurs. Of these 189
+were lost by our agent, however, the medians had a significantly smaller
+difference (ZIC 739.47, our agents 519.072136). Whilst this still represents a
+statistically significant advantage (p < 0.01 Wilcoxon) for ZIC, it raises an
+interesting case where the performance of our agent is significantly improved.
+This lead us to our next experiment, which was to effectively repeatedly crash
+and restore the market, causing an extremely high volatility.
+
+\begin{figure}[h!] \includegraphics[width=80mm]{crash.png} \caption{Market
+order prices given to both buyers and sellers. Extreme volatility introduced at
+t=180 by suddenly crashing the market.} \end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=80mm]{crash2.png} \caption{Equilibrium estimate of both
+our agent's buyer and seller versions} \end{figure}
+
+\subsubsection{Square wave market}
+
+In this experiment we start with the same inital conditions as the previous
+market but we repeatedly change the price ranges from 600-700 and 1-100 and use
+the "random" stepmode in an attempt to cause maximum market volatility.
+
+The basic rationale of this experiment is that our agent performed better in
+the volatile conditions of the previous experiment, but still performed worse
+than ZIC. We wanted to see if this edge case might cause best case behaviour in
+our agent. In figure 6 we have provided an example of what the orders placed look
+like.
+
+\begin{figure}[h!] \includegraphics[width=80mm]{squarewave.png} \caption{Market
+order prices given to both buyers and sellers. Periodic volatility introduced
+every 180 timesteps} \end{figure}
+
+Unfortunately this experiment did not produce the expected results, with ZIC
+managing to extract a much higher median profit than in the previous experiment
+(1535.48). Our agent also extracted a slightly higher profit than the previous
+experiment (median 703.82).
+
+From these analysis we basically conclude that whilst our bot trades more
+efficiently than giveaway it does not trade more efficiently than ZIC in both
+stable and extremely unstable market conditions. Whilst this is disappointing
+we find an obvious reason for this result: our implementation, which attempts
+to follow the maths in the original Vytelingum\cite{Vytellingum:AA} paper,
+there are flaws in the implementation which cause it not to trade anywhere near
+as efficiently as expected, causing it to essentially fail to trade.
+
+Our implementation also seems to issue significantly fewer trades than would be
+expected
+--luke expand this
+
+\section{Analysing the other traders}
+
+In this section we wanted to analyse the ZIP agent against all the others.
+Based on the COMSM2006\cite{cliff:lecture} lecture about trading agents.
+Specifically the lecture references an article written by D. Cliff which is
+meant to show a case where ZIC traders will not converge to the equilibrium
+price of the market\cite{cliff:minimalint}.
+
 %
-% The following two commands are all you need in the
-% initial runs of your .tex file to
-% produce the bibliography for the citations in your paper.
-\bibliographystyle{abbrv}
-\bibliography{paper}  % sigproc.bib is the name of the Bibliography in this case
-% You must have a proper ".bib" file
-%  and remember to run:
-% latex bibtex latex latex
-% to resolve all references
+% The following two commands are all you need in the initial runs of your .tex
+% file to produce the bibliography for the citations in your paper.
+\bibliographystyle{abbrv} \bibliography{paper}  % sigproc.bib is the name of
+the Bibliography in this case
+% You must have a proper ".bib" file and remember to run: latex bibtex latex
+% latex to resolve all references
 %
 % ACM needs 'a single self-contained file'!
 %
-%APPENDICES are optional
-%\balancecolumns
-\appendix
-\end{document}
+%APPENDICES are optional \balancecolumns
+\appendix \end{document}
