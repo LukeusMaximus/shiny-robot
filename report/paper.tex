@@ -137,22 +137,22 @@ We show 3 cases here:
 \item 10 AA bots v. 10 Shaver bots
 \end{enumerate}
 
-\subsubsection{1 v 1} No trading occurs in this experiment. In the graphs
-below, you can see the shouts made by the bots. The Shaver buyer and seller
-traders tend toward the equilibrium price over time but don't manage to reach
-it before the market session ends. The AA bot makes very few trades and is
-always out-bid / out-asked by Shaver.
+\subsubsection{1 v. 1} No trading occurs in this experiment. In figures 2 and 3,
+you can see the shouts made by the bots. The Shaver buyer and seller traders
+tend toward the equilibrium price over time but don't manage to reach it before
+the market session ends. The AA bot makes very few trades and is always out-bid
+/ out-asked by Shaver.
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR1AA1_180_all_bids.png}
-\caption {1 AA versus 1 Shaver. This plot shows the time the time and price of the bids made.}
+\caption {1 AA versus 1 Shaver}
 \end{figure}
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR1AA1_180_all_asks.png}
-\caption {1 AA versus 1 Shaver. This plot shows the time the time and price of the asks made.}
+\caption {1 AA versus 1 Shaver}
 \end{figure}
 
-\subsubsection{1 v Many} In these experiments, trading starts at around round
-90. In the graphs below, we see that the Shaver bots tend towards the
+\subsubsection{1 v. Many} In these experiments, trading starts at around round
+90. In figures 4 and 5, we see that the Shaver bots tend towards the
 equilibrium much faster than when there was only one bot; this is likely due to
 there being 10 Shaver bots which are all trying to out-bid each other. When the
 bids and asks converge, the Shaver bots invariably trade with themselves. Our
@@ -162,11 +162,11 @@ trades at all times, the horizontal lines of bids / asks on the graphs indicate
 that a Shaver bot is placing shouts at its limit price.
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR10AA1_180_all_bids.png}
-\caption {1 AA versus 10 Shavers. This plot shows the time the time and price of the bids made.}
+\caption {1 AA versus 10 Shavers}
 \end{figure}
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR10AA1_180_all_asks.png}
-\caption {1 AA versus 10 Shavers. This plot shows the time the time and price of the asks made.}
+\caption {1 AA versus 10 Shavers}
 \end{figure}
 
 Our AA implmentation again demonstrates how it is not tending to the
@@ -177,21 +177,21 @@ alter its aggressiveness such that it can make competitive shouts in subsequent
 rounds, however, it fails to do this. In other words, Adaptive Aggressive is
 failing to change it's aggressiveness adaptively.
 
-\subsubsection{Many v Many} Again, trading begins at around round 90. We see
-the same pattern as we do in the previous experiment except that AA is making
-more bids / asks. On this occasion we see that AA actually manages to make a
-few profitable trades between rounds 90 and 140 before being swamped by the
-simpler and more effective aggressiveness function of the correctly implemented
-Shaver bot. These few trades are more by chance than by design; the dip in bid
-price would have intersected with the poorly adapting AA bot allowing AA to
-place bids that would be accepted by the seller Shaver traders.
+\subsubsection{Many v Many} Again, trading begins at around round 90. In figures
+6 and 7, we see the same pattern as we do in the previous experiment except that
+AA is making more bids / asks. On this occasion we see that AA actually manages
+to make a few profitable trades between rounds 90 and 140 before being swamped
+by the simpler and more effective aggressiveness function of the correctly
+implemented Shaver bot. These few trades are more by chance than by design; the
+dip in bid price would have intersected with the poorly adapting AA bot allowing
+AA to place bids that would be accepted by the seller Shaver traders.
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR10AA10_180_all_bids.png}
-\caption {10 AAs versus 10 Shavers. This plot shows the time the time and price of the bids made.}
+\caption {10 AAs versus 10 Shavers}
 \end{figure}
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR10AA10_180_all_asks.png}
-\caption {10 AAs versus 10 Shavers. This plot shows the time the time and price of the asks made.}
+\caption {10 AAs versus 10 Shavers}
 \end{figure}
 
 \subsection{1 v 1 tests} Given these initially dismal results, we decided that
