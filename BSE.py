@@ -1056,9 +1056,11 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, dum
 
         make_pretty_graph(orders_returned, traders_spec["buyers"], endtime)
 
+        '''
         for t in traders:
             if traders[t].ttype == "AA":
                 traders[t].graph_values(traders_spec["buyers"], endtime)
+        '''
 
 #############################
 
@@ -1078,21 +1080,28 @@ def make_pretty_graph(orders_returned, spec, length):
         prices = [x.price for x in type_orders]
         plt.figure(3)
         if t == "AA":
-            plt.plot(times, prices, 'ro')
+            plt.plot(times, prices, 'ro', label=t)
         else:
-            plt.plot(times, prices, 'rx')
+            plt.plot(times, prices, 'rx', label=t)
+        plt.legend(loc = 2)
+        plt.ylabel("Price")
+        plt.xlabel("Time")
+            
         type_orders = [x[1] for x in asks if x[0] == t]
         times = [x.time for x in type_orders]
         prices = [x.price for x in type_orders]
         plt.figure(4)
         if t == "AA":
-            plt.plot(times, prices, 'bo')
+            plt.plot(times, prices, 'bo', label=t)
         else:
-            plt.plot(times, prices, 'bx')
+            plt.plot(times, prices, 'bx', label=t)
+        plt.legend(loc = 3)
+        plt.ylabel("Price")
+        plt.xlabel("Time")
     plt.figure(3)
-    plt.savefig("figures/" + spec_str + "_" + length + "_all_bids.png")
+    plt.savefig("figures/" + spec_str + "_" + str(int(length)) + "_all_bids.png")
     plt.figure(4)
-    plt.savefig("figures/" + spec_str + "_" + length + "_all_asks.png")
+    plt.savefig("figures/" + spec_str + "_" + str(int(length)) + "_all_asks.png")
     
 
 ## Below here is where we set up and run a series of experiments
@@ -1116,7 +1125,7 @@ if __name__ == "__main__":
         order_sched = {'sup':supply_schedule, 'dem':demand_schedule,
                        'interval':30, 'timemode':'drip-poisson'}
 
-        buyers_spec = [('SHVR',1),('AA',1)]
+        buyers_spec = [('SHVR',10),('AA',10)]
         sellers_spec = buyers_spec
         traders_spec = {'sellers':sellers_spec, 'buyers':buyers_spec}
 
