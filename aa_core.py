@@ -3,8 +3,7 @@ import BSE
 import copy
 
 import math
-import random
-
+import matplotlib.pyplot as plt
 
 #guesswork comment!
 ALPHA_MIN = 0.02;
@@ -43,6 +42,9 @@ class RoundRobinBuffer:
     def __iter__(self):
         return self.buffer.__iter__()
 
+plotted_buy = False
+plotted_sell = False
+
 class AACommon:
     def __init__(self):
         #-1 is most aggressive
@@ -63,12 +65,14 @@ class AACommon:
         self.weight_decay = 0.9
         self.nyan = 3
         #this is a magical ass pull by luke
-        self.squiggle = 2
+        self.gamma = 2
 
         self.previous_trades = RoundRobinBuffer(self.N)
 
         # DEBUG
         self.strval = ""
+        self.bids = []
+        self.asks = []
 
     def interesting_trades(self):
         return self.previous_trades
@@ -91,7 +95,7 @@ class AACommon:
         alpha_delta = ALPHA_MAX - ALPHA_MIN
         theta_delta = THETA_MAX - THETA_MIN
         
-        ts = THETA_MIN + theta_delta * ((1-math.exp(self.squiggle * ((alpha - ALPHA_MIN/alpha_delta) - 1))) / 1-math.exp(-self.squiggle))
+        ts = THETA_MIN + theta_delta * ((1-math.exp(self.gamma * ((alpha - ALPHA_MIN/alpha_delta) - 1))) / 1-math.exp(-self.gamma))
 
         print "aa ltl old theta", self.theta
         self.theta = self.theta + self.learning_rate_beta2*(ts-self.theta)
@@ -145,7 +149,35 @@ class AACommon:
         #print "aa eq", mean
         print "aa eq", self.equilibrium_price
         self.equilibrium_price = mean
-
+        
+    def graph_values(self, spec, length):
+        global plotted_buy, plotted_sell
+        data = None
+        mode = None
+        if not plotted_buy and len(self.bids) > 0:
+            mode = "buy"
+            data = self.bids
+        elif not plotted_sell and len(self.asks) > 0:
+            mode = "sell"
+            data = self.asks
+        if mode != None:
+            times = [x["time"] for x in data]
+            prices = [x["price"] for x in data]
+            limits = [x["limit"] for x in data]
+            equs = [x["equ"] for x in data]
+            if mode == "buy":
+                plotted_buy = True
+                plt.figure(1)
+                plt.plot(times, prices, 'ro', times, limits, 'rx', times, equs, 'r-')
+            else:
+                plotted_sell = True
+                plt.figure(2)
+                plt.plot(times, prices, 'bo', times, limits, 'bx', times, equs, 'b-')
+            spec_str = ""
+            for x in spec:
+                spec_str += x[0] + str(x[1])
+            plt.savefig("figures/" + spec_str + "_" + length + "_" + mode + "_image.png")
+        
 class AABuyer(AACommon):
 
     def __init__(self):
@@ -235,6 +267,7 @@ class AABuyer(AACommon):
             else:
                 print "aab bc case d"
                 bid = market_best_bid + (self.tau-market_best_bid)/self.nyan
+            self.bids.append({"tid":order.tid, "price":bid, "time":time, "limit":order.price, "equ":self.equilibrium_price})
             return BSE.Order(order.tid, "Bid", bid, order.qty, time)
         return None
 
@@ -327,5 +360,6 @@ class AASeller(AACommon):
                 print "aas bc case d"
                 ask = market_best_ask - (market_best_ask - self.tau)/self.nyan
                 assert ask >= self.limit_price()
+            self.asks.append({"tid":order.tid, "price":ask, "time":time, "limit":order.price, "equ":self.equilibrium_price})
             return BSE.Order(order.tid, "Ask", ask, order.qty, time)
         return None

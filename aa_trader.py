@@ -83,6 +83,7 @@ class AATrader(BSE.Trader):
         o = self.buyer_agent.bidding_component(best_ask_price, best_bid_price, time)
         if o is not None:
             print "aa making a trade"
+            print "graph", "BID", o.price, o.time
             if o.price < BSE.bse_sys_minprice:
                 print "aa price", o.price
                 print "aa clamping"
@@ -102,6 +103,7 @@ class AATrader(BSE.Trader):
         o = self.seller_agent.bidding_component(best_ask_price, best_bid_price, time)
         if o is not None:
             print "aa making a trade"
+            print "graph", "ASK", o.price, o.time
             if o.price > BSE.bse_sys_maxprice:
                 o.price = BSE.bse_sys_maxprice
             print "aas o", o
@@ -116,3 +118,7 @@ class AATrader(BSE.Trader):
         if trade is not None:
             self.buyer_agent.receive_trade(trade)
             self.seller_agent.receive_trade(trade)
+            
+    def graph_values(self, spec):
+        self.buyer_agent.graph_values(spec)
+        self.seller_agent.graph_values(spec)

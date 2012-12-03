@@ -122,9 +122,9 @@ class AggressivenessModel:
         if r >= -1.0 and r < 0.0:
             if intra_marginal:
                 theta_buyer = self.compute_theta_buyer(estimated_price, theta)
-                tau = estimated_price * (1.0 - ((math.exp(-r * theta_buyer) - 1.0) / (math.exp(theta_buyer) - 1.0)))
+                tau = estimated_price * (1.0 + ((math.exp(-r * theta_buyer) - 1.0) / (math.exp(theta_buyer) - 1.0)))
             else:
-                tau = self.limit_price * (1.0 - ((math.exp(-r * theta) - 1.0) / (math.exp(theta) - 1.0)))
+                tau = self.limit_price * (1.0 + ((math.exp(-r * theta) - 1.0) / (math.exp(theta) - 1.0)))
         elif (r > 0.0 and r < 1.0):
             if intra_marginal:
                 tau = estimated_price + (self.limit_price - estimated_price) * ((math.exp(r * theta) - 1.0) / (math.exp(theta) - 1.0))
@@ -145,9 +145,9 @@ class AggressivenessModel:
         if r >= -1.0 and r < 0.0:
             if intra_marginal:
                 theta_seller = self.compute_theta_seller(estimated_price, theta)
-                tau = estimated_price + (self.pmax - estimated_price) * ((math.exp(-r * theta_seller) - 1.0) / (math.exp(theta_seller) - 1.0))
+                tau = (self.pmax - estimated_price) * (1 - ((math.exp(-r * theta_seller) - 1.0) / (math.exp(theta_seller) - 1.0)))
             else:
-                tau = self.limit_price + (self.pmax - self.limit_price) * ((math.exp(-r * theta) - 1.0) / (math.exp(theta) - 1.0))
+                tau = self.limit_price - (self.pmax - self.limit_price) * ((math.exp(-r * theta) - 1.0) / (math.exp(theta) - 1.0))
         elif (r > 0.0 and r < 1.0):
             if (intra_marginal):
                 tau = self.limit_price + (estimated_price - self.limit_price) * (1.0 - ((math.exp(r * theta) - 1.0) / (math.exp(theta) - 1.0)))
