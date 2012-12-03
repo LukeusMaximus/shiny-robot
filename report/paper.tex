@@ -140,7 +140,7 @@ We show 3 cases here:
 \subsubsection{1 v. 1} No trading occurs in this experiment. In figures 2 and 3,
 you can see the shouts made by the bots. The Shaver buyer and seller traders
 tend toward the equilibrium price over time but don't manage to reach it before
-the market session ends. The AA bot makes very few trades and is always out-bid
+the market session ends. The AA bot makes very few shouts and is always out-bid
 / out-asked by Shaver.
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR1AA1_180_all_bids.png}
@@ -151,15 +151,15 @@ the market session ends. The AA bot makes very few trades and is always out-bid
 \caption {1 AA versus 1 Shaver}
 \end{figure}
 
-\subsubsection{1 v. Many} In these experiments, trading starts at around round
+\subsubsection{1 v. Many} With more Shaver bots, trading starts at around round
 90. In figures 4 and 5, we see that the Shaver bots tend towards the
-equilibrium much faster than when there was only one bot; this is likely due to
-there being 10 Shaver bots which are all trying to out-bid each other. When the
-bids and asks converge, the Shaver bots invariably trade with themselves. Our
-AA implementation is excluded from trading as it can't adjust its
-aggressiveness quickly enough. Not all Shaver bots are engaged in making actual
-trades at all times, the horizontal lines of bids / asks on the graphs indicate
-that a Shaver bot is placing shouts at its limit price.
+equilibrium as before but at a much faster rate than when there was only one
+bot; this is likely due to there being 10 Shaver bots which are all trying to
+out-bid each other. When the bids and asks converge, the Shaver bots invariably
+trade with themselves. Our AA implementation is excluded from trading as it
+can't adjust its aggressiveness quickly enough. Not all Shaver bots are engaged
+in making actual trades at all times, the horizontal lines of bids / asks on the
+graphs indicate that a Shaver bot is placing shouts at its limit price.
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR10AA1_180_all_bids.png}
 \caption {1 AA versus 10 Shavers}
@@ -354,8 +354,20 @@ there are flaws in the implementation which cause it not to trade anywhere near
 as efficiently as expected, causing it to essentially fail to trade.
 
 Our implementation also seems to issue significantly fewer trades than would be
-expected
---luke expand this
+expected. Looking at the implemeentations of the other bots provided by D.
+Cliff, it is not hard to see why. The implementations provided will always
+return a trade when the bot has an order to fulfil (with the exception of the
+Sniper bot which will make a shout on every round after a give threshold)
+meaning these implementations have many more shouts on which to make profit.
+
+This is contrary to our AA implementation which will not return a trade in the
+case where the best bid in the market is greater than (for a buyer), or where
+the best ask is less than (for a seller), the bot's limit price. This results
+in our AA implementation not sharing it's information with the market which
+would prevent other bots making offers that are more favourable to our AA bot.
+
+\begin{enumerate}
+\item 
 
 \section{Analysing the other traders}
 
