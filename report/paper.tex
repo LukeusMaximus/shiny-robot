@@ -119,6 +119,8 @@ the many vs many test against shaver agents. Box plot generated from:
 http://www.alcula.com/calculators/statistics/box-plot/}
 \end{figure}
 
+Luke can you make this connect better
+
 \subsection{AA v Shaver} One very noticable trend in our analysis is when AA
 is pitched against the Shaver algorithm. In all of our experiments where trades
 occurred, Shaver made more profit than AA. In this section, we explore the
@@ -355,7 +357,7 @@ there are flaws in the implementation which cause it not to trade anywhere near
 as efficiently as expected, causing it to essentially fail to trade.
 
 Our implementation also seems to issue significantly fewer trades than would be
-expected. Looking at the implemeentations of the other bots provided by D.
+expected. Looking at the implementations of the other bots provided by D.
 Cliff, it is not hard to see why. The implementations provided will always
 return a trade when the bot has an order to fulfil (with the exception of the
 Sniper bot which will make a shout on every round after a give threshold)
@@ -367,14 +369,45 @@ the best ask is less than (for a seller), the bot's limit price. This results
 in our AA implementation not sharing it's information with the market which
 would prevent other bots making offers that are more favourable to our AA bot.
 
+\section{ZIC versus ZIP in the square wave market}
 
-\section{Analysing the other traders}
+Contrary to our initial intuitions, the previously described square wave market
+conditions caused an interesting behaviour when comparing ZIP and ZIC in a one
+versus one fashion. ZIC actually beat ZIP 65 out of 100 times when running this
+test. The median profit for ZIC agents was 1793.5, beating ZIP's median profit
+of 1487.25. Using the Wilcoxon test showed that this difference of medians was
+statistically significant (p < 0.01).
 
-In this section we wanted to analyse the ZIP agent against all the others.
-Based on the COMSM2006\cite{cliff:lecture} lecture about trading agents.
-Specifically the lecture references an article written by D. Cliff which is
-meant to show a case where ZIC traders will not converge to the equilibrium
-price of the market\cite{cliff:minimalint}.
+In figure n we show the trades issued by each agent in one of our sample runs
+with time within the trading session, along with the agent's limit price when
+the trade was created.
+
+--luke can you fill this out explaining why this happened
+
+Even in this admittedly artificial environment it is interesting to note that
+whilst in realistic environments the more advanced traders may dominate, in
+obscenely volatile markets, this result may indicate that less intelligent
+traders that do not introspect the market may be better at generating profit.
+
+\section{Conclusions}
+
+Whilst we attempted to implement the adaptive aggressive algorithm, it is
+pretty clear based on the analysis presented in this paper that our
+implementation falls short. Whilst it is able to trade more efficiently than
+the Giveaway trader in one versus one cases, with a simple supply and demand
+schedule, the results from the rest of the analysis presented indicate that our
+agent would not be the one to use if one were desperately motivated to make
+incredible profits.
+
+We also analysed the case that produces worst case behaviour in our agent,
+which is when it is placed against a shaver trading agent in a many versus many
+fashion. In this case our agent is found to generate a small loss. This occurs
+because of shaver's rapid descent to the mean (luke can you check this).
+
+Finally we produced an analysis showing that in a very volatile market, the
+less "intelligent" ZIP agent is able to generate more profit than the ZIC
+agent. We posit this is because the trend analysis that ZIP attempts to make
+cannot be accurate, due to the rapidly oscillating nature of the market.
 
 %
 % The following two commands are all you need in the initial runs of your .tex
