@@ -119,31 +119,30 @@ the many vs many test against shaver agents. Box plot generated from:
 http://www.alcula.com/calculators/statistics/box-plot/}
 \end{figure}
 
-Luke can you make this connect better
-
-\subsection{AA v Shaver} One very noticable trend in our analysis is when AA
-is pitched against the Shaver algorithm. In all of our experiments where trades
-occurred, Shaver made more profit than AA. In this section, we explore the
-reasons why Shaver so completely outclasses our implemetation of AA.
+\subsection{AA v Shaver} In the previous section, our AA implementation is
+pitched against the Shaver algorithm. In these experiments, Shaver made more
+profit than AA. In this section, we explore the reasons why Shaver so
+completely outclasses our implementation of AA, causing it to make a loss in a
+number of experiments.
 
 Shaver is designed to make "close shave" bids and asks by slightly out-bidding
 the best bid on the market. This is similar to how AA's aggressiveness is
-supposed to operate; when a bid is placed that out-bids the bot, the price is
-adjusted so that the bot out-bids the previous bid in the following round
-(unless such a bid would exceed the bot's limit price). This aggressiveness
+supposed to operate; when a bid is placed that out-bids the agent, the price is
+adjusted so that the agent out-bids the previous bid in the following round
+(unless such a bid would exceed the agent's limit price). This aggressiveness
 behaviour increases the chance of a trade and thus increases profit.
 
 We show 3 cases here:
 \begin{enumerate}
-\item 1 AA bot v. 1 Shaver bot
-\item 1 AA bot v. 10 Shaver bots
-\item 10 AA bots v. 10 Shaver bots
+\item 1 AA agent v. 1 Shaver agent
+\item 1 AA agent v. 10 Shaver agents
+\item 10 AA agents v. 10 Shaver agents
 \end{enumerate}
 
 \subsubsection{1 v. 1} No trading occurs in this experiment. In figures 2 and 3,
-you can see the shouts made by the bots. The Shaver buyer and seller traders
+you can see the shouts made by the agents. The Shaver buyer and seller traders
 tend toward the equilibrium price over time but don't manage to reach it before
-the market session ends. The AA bot makes very few shouts and is always out-bid
+the market session ends. The AA agent makes very few shouts and is always out-bid
 / out-asked by Shaver.
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR1AA1_180_all_bids.png}
@@ -154,15 +153,15 @@ the market session ends. The AA bot makes very few shouts and is always out-bid
 \caption {1 AA versus 1 Shaver}
 \end{figure}
 
-\subsubsection{1 v. Many} With more Shaver bots, trading starts at around round
-90. In figures 4 and 5, we see that the Shaver bots tend towards the
+\subsubsection{1 v. Many} With more Shaver agents, trading starts at around round
+90. In figures 4 and 5, we see that the Shaver agents tend towards the
 equilibrium as before but at a much faster rate than when there was only one
-bot; this is likely due to there being 10 Shaver bots which are all trying to
-out-bid each other. When the bids and asks converge, the Shaver bots invariably
+agent; this is likely due to there being 10 Shaver agents which are all trying to
+out-bid each other. When the bids and asks converge, the Shaver agents invariably
 trade with themselves. Our AA implementation is excluded from trading as it
-can't adjust its aggressiveness quickly enough. Not all Shaver bots are engaged
+can't adjust its aggressiveness quickly enough. Not all Shaver agents are engaged
 in making actual trades at all times, the horizontal lines of bids / asks on the
-graphs indicate that a Shaver bot is placing shouts at its limit price.
+graphs indicate that a Shaver agents is placing shouts at its limit price.
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR10AA1_180_all_bids.png}
 \caption {1 AA versus 10 Shavers}
@@ -185,9 +184,11 @@ failing to change it's aggressiveness adaptively.
 AA is making more bids / asks. On this occasion we see that AA actually manages
 to make a few profitable trades between rounds 90 and 140 before being swamped
 by the simpler and more effective aggressiveness function of the correctly
-implemented Shaver bot. These few trades are more by chance than by design; the
-dip in bid price would have intersected with the poorly adapting AA bot allowing
+implemented Shaver agents. These few trades are more by chance than by design; the
+dip in bid price would have intersected with the poorly adapting AA agents allowing
 AA to place bids that would be accepted by the seller Shaver traders.
+
+--conclusion paragraph here plz luke
 
 \begin{figure}[h!] \includegraphics[width=80mm]{SHVR10AA10_180_all_bids.png}
 \caption {10 AAs versus 10 Shavers}
@@ -201,7 +202,7 @@ AA to place bids that would be accepted by the seller Shaver traders.
 a good place to start a detailed analysis would be a 1v1 test with the Giveaway
 trader, which is clearly the worst of all the traders within the BSE system.
 300 1v1 tests were performed, we used the same schedule as the many versus many
-test, with a longer total trading time of 1800. Results where both bots made
+test, with a longer total trading time of 1800. Results where both agents made
 zero profit were eliminated, this brought the number of tests included for
 analysis down from 300 to 242. Of these tests 103 were won by Giveaway and 139
 were won by our agent. The distributions of profit for each agent, as well as
@@ -209,8 +210,8 @@ the distribution of differences in profit can be seen in figures 8 and 9.
 
 \begin{figure}[h!] \includegraphics[width=80mm]{giveaway_1_v_1.png}
 \caption{Histogram of profit distributions over 300 similar trading runs for
-the two bot types used in the 1v1 test. Note axis are different for the two
-bots} \end{figure}
+the two agents types used in the 1v1 test. Note axis are different for the two
+agents} \end{figure}
 
 \begin{figure}[h!] \includegraphics[width=80mm]{giveaway_1_v_1_delta.png}
 \caption {Histogram showing the difference between Giveaway and our AA implementation,
@@ -348,7 +349,7 @@ managing to extract a much higher median profit than in the previous experiment
 (1535.48). Our agent also extracted a slightly higher profit than the previous
 experiment (median 703.82).
 
-From these analysis we basically conclude that whilst our bot trades more
+From these analysis we basically conclude that whilst our agents trades more
 efficiently than giveaway it does not trade more efficiently than ZIC in both
 stable and extremely unstable market conditions. Whilst this is disappointing
 we find an obvious reason for this result: our implementation, which attempts
@@ -357,18 +358,18 @@ there are flaws in the implementation which cause it not to trade anywhere near
 as efficiently as expected, causing it to essentially fail to trade.
 
 Our implementation also seems to issue significantly fewer trades than would be
-expected. Looking at the implementations of the other bots provided by D.
+expected. Looking at the implementations of the other agents provided by D.
 Cliff, it is not hard to see why. The implementations provided will always
-return a trade when the bot has an order to fulfil (with the exception of the
-Sniper bot which will make a shout on every round after a give threshold)
+return a trade when the agent has an order to fulfil (with the exception of the
+Sniper agent which will make a shout on every round after a give threshold)
 meaning these implementations have many more shouts on which to make profit.
 
 This is contrary to our AA implementation which will not return a trade in the
 case where the best bid in the market is greater than (for a buyer), or where
-the best ask is less than (for a seller), the bot's limit price. This results
+the best ask is less than (for a seller), the agent's limit price. This results
 in our AA implementation not sharing it's information with the market which
-would prevent other bots making offers that are more favourable to our AA bot.
-
+would prevent other agents making offers that are more favourable to our AA agent.
+\newpage
 \section{ZIC versus ZIP in the square wave market}
 
 Contrary to our initial intuitions, the previously described square wave market
@@ -378,11 +379,22 @@ test. The median profit for ZIC agents was 1793.5, beating ZIP's median profit
 of 1487.25. Using the Wilcoxon test showed that this difference of medians was
 statistically significant (p < 0.01).
 
-In figure n we show the trades issued by each agent in one of our sample runs
+In figure 13 we show the trades issued by each agent in one of our sample runs
 with time within the trading session, along with the agent's limit price when
 the trade was created.
 
---luke can you fill this out explaining why this happened
+\begin{figure} \includegraphics[width=80mm]{omg_zip_zic.png}
+\caption{Example of bids and asks issued by ZIC and ZIP in a market with the
+conditions of this experiment}
+\end{figure}
+
+Figure 13 clearly shows why ZIC is able to outperform ZIP in this market. As the
+market price rapidly shifts ZIC simply redistributes it's prices randomly
+throughout the possible range of prices, ZIP's internal profit margin changes
+in response to what everyone else is doing. However as the market is peturbing
+randomly, and the ZIC agents are trading randomly, this estimate is likely to
+be wildly thrown off. The reason ZIC can trade is that it's offers will always
+eventually "meet in the middle", regardless of the, massive, random variation.
 
 Even in this admittedly artificial environment it is interesting to note that
 whilst in realistic environments the more advanced traders may dominate, in
